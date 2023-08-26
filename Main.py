@@ -4,6 +4,7 @@ import shutil
 import os
 import html
 from lxml import etree
+import networkx as nx
 
 # URLs of the files to download
 urls = [
@@ -13,11 +14,11 @@ urls = [
     "https://dblp.org/xml/release/dblp-2017-08-29.dtd"
 ]
 
-# directory stores downloaded files
+# Directory to store downloaded files
 download_dir = "downloaded_files"
 os.makedirs(download_dir, exist_ok=True)
 
-# download/ save files
+# Download and save files
 for url in urls:
     file_name = os.path.join(download_dir, os.path.basename(url))
     urllib.request.urlretrieve(url, file_name)
@@ -40,40 +41,36 @@ preprocessed_xml_data = html.unescape(xml_data)
 parser = etree.XMLParser(recover=True)  # Allow parsing with errors
 root = etree.fromstring(preprocessed_xml_data.encode("utf-8"), parser=parser)
 
-# Find the last 4 elements in the XML tree
-last_elements = []
+# Create a directed graph using NetworkX
+graph = nx.DiGraph()
+
+# Add nodes (elements) to the graph and store attributes
 for element in root.iter():
-    last_elements.append(element)
-    if len(last_elements) == 20:
-        break
-
-# Find the last 4 "phdthesis" elements in the XML tree
-last_phdthesis_elements = []
-for element in root.iter("phdthesis"):
-    last_phdthesis_elements.append(element)
-    if len(last_phdthesis_elements) == 4:
-        break
-
-# Print attributes of the last 4 "phdthesis" elements
-if last_phdthesis_elements:
-    print("Attributes of the last 4 phdthesis elements:")
-    for last_phdthesis in last_phdthesis_elements:
-        print(f"Element: {last_phdthesis.tag}")
+    if element.tag == "phdthesis":
+        title = element.find("title").text
+        graph.add_node(title)
         
-        author = last_phdthesis.find("author").text if last_phdthesis.find("author") is not None else None
-        title = last_phdthesis.find("title").text if last_phdthesis.find("title") is not None else None
-        year = last_phdthesis.find("year").text if last_phdthesis.find("year") is not None else None
-        school = last_phdthesis.find("school").text if last_phdthesis.find("school") is not None else None
+        author = element.find("author").text if element.find("author") is not None else None
+        year = element.find("year").text if element.find("year") is not None else None
+        school = element.find("school").text if element.find("school") is not None else None
         
-        if author is not None:
-            print(f"  Author: {author}")
-        if title is not None:
-            print(f"  Title: {title}")
-        if year is not None:
-            print(f"  Year: {year}")
-        if school is not None:
-            print(f"  School: {school}")
-else:
-    print("No phdthesis elements found in the XML.")
+        graph.nodes[title]["author"] = author
+        graph.nodes[title]["title"] = title
+        graph.nodes[title]["year"] = year
+        graph.nodes[title]["school"] = school
+
+# Access attributes of a specific node using its title (node_name)
+node_name = "Modell zur Produktion von Online-Hilfen."
+author = graph.nodes[node_name]["author"]
+title = graph.nodes[node_name]["title"]
+year = graph.nodes[node_name]["year"]
+school = graph.nodes[node_name]["school"]
+
+print("Author:", author)
+print("Title:", title)
+print("Year:", year)
+print("School:", school)
+
+# ... (rest of the code)
 
 
