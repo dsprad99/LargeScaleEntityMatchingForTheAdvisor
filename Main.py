@@ -71,6 +71,5 @@ print("Title:", title)
 print("Year:", year)
 print("School:", school)
 
-# ... (rest of the code)
 
 
