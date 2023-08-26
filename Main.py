@@ -47,14 +47,33 @@ for element in root.iter():
     if len(last_elements) == 20:
         break
 
-# Print attributes of the last 4 elements
-if last_elements:
-    print("Attributes of the last 20 elements:")
-    for last_element in last_elements:
-        print(f"Element: {last_element.tag}")
-        for attr_name, attr_value in last_element.attrib.items():
-            print(f"  {attr_name}: {attr_value}")
+# Find the last 4 "phdthesis" elements in the XML tree
+last_phdthesis_elements = []
+for element in root.iter("phdthesis"):
+    last_phdthesis_elements.append(element)
+    if len(last_phdthesis_elements) == 4:
+        break
+
+# Print attributes of the last 4 "phdthesis" elements
+if last_phdthesis_elements:
+    print("Attributes of the last 4 phdthesis elements:")
+    for last_phdthesis in last_phdthesis_elements:
+        print(f"Element: {last_phdthesis.tag}")
+        
+        author = last_phdthesis.find("author").text if last_phdthesis.find("author") is not None else None
+        title = last_phdthesis.find("title").text if last_phdthesis.find("title") is not None else None
+        year = last_phdthesis.find("year").text if last_phdthesis.find("year") is not None else None
+        school = last_phdthesis.find("school").text if last_phdthesis.find("school") is not None else None
+        
+        if author is not None:
+            print(f"  Author: {author}")
+        if title is not None:
+            print(f"  Title: {title}")
+        if year is not None:
+            print(f"  Year: {year}")
+        if school is not None:
+            print(f"  School: {school}")
 else:
-    print("No elements found in the XML.")
+    print("No phdthesis elements found in the XML.")
 
 
