@@ -13,14 +13,17 @@ class Paper:
         self.published_through = None
 
         
-title_character_counter = 0
-number_of_titles = 0
+title_character_counter_DBLP = 0
+number_of_titles_DBLP = 0
+
+title_character_counter_MAG = 0
+number_of_titles_MAG = 0
 
 
-def parse_paper_attributes(file_path, callback):
+def parse_DBLP_file(file_path, callback):
     current_paper = None
-    global title_character_counter
-    global number_of_titles
+    global title_character_counter_DBLP
+    global number_of_titles_DBLP
     with gzip.open(file_path, 'rt', encoding='utf-8') as gz_file:
         count = 0
         for line in gz_file:
@@ -42,16 +45,15 @@ def parse_paper_attributes(file_path, callback):
                     current_paper.pages = line.replace('<pages>', '').replace('</pages>', '').strip()
                 elif '<title>' in line:
                     current_paper.title = line.replace('<title>', '').replace('</title>', '').strip()
-                    title_character_counter += len(current_paper.title)
-                    number_of_titles += 1
+                    title_character_counter_DBLP += len(current_paper.title)
+                    number_of_titles_DBLP += 1
                 elif '<url>' in line:
                     current_paper.url = line.replace('<url>', '').replace('</url>', '').strip()
 
 
 def parse_MAG_file(file_path, callback):
-    # Replace 'Papers.txt.gz' with the actual file path.
-    global title_character_counter
-    global number_of_titles
+    global title_character_counter_MAG
+    global number_of_titles_MAG
     count = 0
     file_path = 'Papers.txt.gz'
     with gzip.open(file_path, 'rt', encoding='utf-8') as file:
@@ -60,8 +62,8 @@ def parse_MAG_file(file_path, callback):
             current_paper = Paper()
             paper_identification, paper_title = fields[0], fields[4]
 
-            title_character_counter += len(fields[4])
-            number_of_titles += 1
+            title_character_counter_MAG += len(fields[4])
+            number_of_titles_MAG += 1
 
             current_paper.paper_id = paper_identification
             current_paper.title = paper_title
@@ -81,13 +83,22 @@ def print_paper(paper):
     print()
 
 file_path_dblp = 'dblp.xml.gz'
-parse_paper_attributes(file_path_dblp, print_paper)
+parse_DBLP_file(file_path_dblp, print_paper)
 
 file_path_MAG = 'Papers.txt.gz'
 parse_MAG_file(file_path_MAG, print_paper)
 
-print("Total characters parsed for all Paper titles ",title_character_counter)
-print("Total number of paper titles ",number_of_titles)
+print()
+print("Total characters parsed for DBLP Paper titles ",title_character_counter_DBLP)
+print("Total number of paper titles for DBLP ",number_of_titles_DBLP)
+print()
+
+print("Total characters parsed for all MAG Paper titles ",title_character_counter_MAG)
+print("Total number of paper titles for DBLP ",number_of_titles_MAG)
+
+print()
+print("Total characters parsed for all Paper titles ",title_character_counter_DBLP+ title_character_counter_MAG)
+print("Total number of paper titles ",number_of_titles_DBLP+number_of_titles_MAG)
 
 
 
