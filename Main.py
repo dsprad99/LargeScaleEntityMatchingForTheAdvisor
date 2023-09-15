@@ -11,24 +11,20 @@ class Paper:
         self.title = None
         self.url = None
         self.published_through = None
+        self.file_source = None
 
         
-title_character_counter_DBLP = 0
-number_of_titles_DBLP = 0
-
-title_character_counter_MAG = 0
-number_of_titles_MAG = 0
 
 
 def parse_DBLP_file(file_path, callback):
     current_paper = None
-    global title_character_counter_DBLP
-    global number_of_titles_DBLP
     with gzip.open(file_path, 'rt', encoding='utf-8') as gz_file:
         count = 0
         for line in gz_file:
+            #inproceedings
             if '<article' in line:
                 current_paper = Paper()
+                current_paper.file_source = "DBLP"
             elif '</article>' in line and current_paper:
 
                 if count<10:
@@ -45,28 +41,22 @@ def parse_DBLP_file(file_path, callback):
                     current_paper.pages = line.replace('<pages>', '').replace('</pages>', '').strip()
                 elif '<title>' in line:
                     current_paper.title = line.replace('<title>', '').replace('</title>', '').strip()
-                    title_character_counter_DBLP += len(current_paper.title)
-                    number_of_titles_DBLP += 1
                 elif '<url>' in line:
                     current_paper.url = line.replace('<url>', '').replace('</url>', '').strip()
 
 
 def parse_MAG_file(file_path, callback):
-    global title_character_counter_MAG
-    global number_of_titles_MAG
     count = 0
     file_path = 'Papers.txt.gz'
     with gzip.open(file_path, 'rt', encoding='utf-8') as file:
         for line in file:
             fields = line.strip().split('\t')
             current_paper = Paper()
+            #field[0] = the papers mag ID
             paper_identification, paper_title = fields[0], fields[4]
-
-            title_character_counter_MAG += len(fields[4])
-            number_of_titles_MAG += 1
-
             current_paper.paper_id = paper_identification
             current_paper.title = paper_title
+            current_paper.file_source = "MAG"
             if(count<10):
                 callback(current_paper)
                 count+=1
@@ -82,23 +72,27 @@ def print_paper(paper):
     print("URL:", paper.url)
     print()
 
+def counter(paper):
+    global dblp_counter
+    global mag_counter
+    dblp_counter = 0
+    mag_counter = 0
+    if(paper.file_source == "DBLP"):
+        dblp_counter+=1
+    else:
+        mag_counter +=1
+    
+
+    
+
 file_path_dblp = 'dblp.xml.gz'
 parse_DBLP_file(file_path_dblp, print_paper)
 
 file_path_MAG = 'Papers.txt.gz'
 parse_MAG_file(file_path_MAG, print_paper)
 
-print()
-print("Total characters parsed for DBLP Paper titles ",title_character_counter_DBLP)
-print("Total number of paper titles for DBLP ",number_of_titles_DBLP)
-print()
-
-print("Total characters parsed for all MAG Paper titles ",title_character_counter_MAG)
-print("Total number of paper titles for DBLP ",number_of_titles_MAG)
-
-print()
-print("Total characters parsed for all Paper titles ",title_character_counter_DBLP+ title_character_counter_MAG)
-print("Total number of paper titles ",number_of_titles_DBLP+number_of_titles_MAG)
+print("DBLP title counter: ",dblp_counter)
+print("MAG title counter: ",mag_counter)
 
 
 
