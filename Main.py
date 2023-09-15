@@ -1,4 +1,5 @@
 import gzip
+import xml.etree.ElementTree as ET
 import sys
 
 class Paper:
@@ -15,21 +16,87 @@ class Paper:
         self.file_source = None
 
 
-def parse_DBLP_file(file_path, callback, callback2):
+def parse_DBLP_file(file_path, callback, callback2, callback3):
     current_paper = None
     with gzip.open(file_path, 'rt', encoding='utf-8') as gz_file:
-        count = 0
         for line in gz_file:
             # inproceedings
-            if '<article' in line:
+    
+            if '<article' in line and '</article>' in line:
+                callback2(current_paper)
+                callback(current_paper)
                 current_paper = Paper()
+                callback3(line,current_paper)
                 current_paper.file_source = "DBLP"
+            
+            elif '<article' in line and '</inproceedings>' in line:
+                callback2(current_paper)
+                callback(current_paper)
+                current_paper = Paper()
+                callback3(line,current_paper)
+                current_paper.file_source = "DBLP"
+
+            elif '<inproceedings' in line and '</article>' in line:
+                callback2(current_paper)
+                callback(current_paper)
+                current_paper = Paper()
+                callback3(line,current_paper)
+                current_paper.file_source = "DBLP"
+
+            elif '<incollection' in line and '</incollection>' in line:
+                callback2(current_paper)
+                callback(current_paper)
+                current_paper = Paper()
+                callback3(line,current_paper)
+                current_paper.file_source = "DBLP"
+
+            elif '<article' in line and '</incollection>' in line:
+                callback2(current_paper)
+                callback(current_paper)
+                current_paper = Paper()
+                callback3(line,current_paper)
+                current_paper.file_source = "DBLP"
+
+            elif '<incollection' in line and '</article>' in line:
+                callback2(current_paper)
+                callback(current_paper)
+                current_paper = Paper()
+                callback3(line,current_paper)
+                current_paper.file_source = "DBLP"
+
+            elif '<inproceedings' in line and '</inproceedings>' in line:
+                callback2(current_paper)
+                callback(current_paper)
+                current_paper = Paper()
+                callback3(line,current_paper)
+                current_paper.file_source = "DBLP"
+
+            elif '<article' in line:
+                current_paper = Paper()
+                callback3(line,current_paper)
+                current_paper.file_source = "DBLP"
+            
             elif '</article>' in line and current_paper:
                 callback2(current_paper)
-                if count < 10:
-                    callback(current_paper)
-                    count += 1
+                callback(current_paper)
 
+            elif '<incollection' in line:
+                current_paper = Paper()
+                callback3(line,current_paper)
+                current_paper.file_source = "DBLP"
+            
+            elif '</incollection>' in line and current_paper:
+                callback2(current_paper)
+                callback(current_paper)
+
+            elif '<inproceedings' in line:
+                current_paper = Paper()
+                callback3(line,current_paper)
+                current_paper.file_source = "DBLP"
+            
+            elif '</inproceedings>' in line and current_paper:
+                callback2(current_paper)
+                callback(current_paper)
                 current_paper = None
             elif current_paper:
                 if '<author>' in line:
@@ -44,6 +111,8 @@ def parse_DBLP_file(file_path, callback, callback2):
 
                 elif '<url>' in line:
                     current_paper.url = line.replace('<url>', '').replace('</url>', '').strip()
+
+
 
 
 def parse_MAG_file(file_path, callback, callback2):
@@ -65,16 +134,26 @@ def parse_MAG_file(file_path, callback, callback2):
                 count += 1
 
 
+
+ #Callback #1       
+global print_counter
+print_counter = 0 
 def print_paper(paper):
-    print("Author:", paper.author)
-    print("Title:", paper.title)
-    print("Paper ID", paper.paper_id)
-    print("Year:", paper.year)
-    print("Pages:", paper.pages)
-    print("URL:", paper.url)
-    print()
+    global print_counter
+    if print_counter < 10:  
+        print("Author:", paper.author)
+        print("Title:", paper.title)
+        print("Paper ID", paper.paper_id)
+        print("Year:", paper.year)
+        print("Pages:", paper.pages)
+        print("URL:", paper.url)
+        print("DOI: ", paper.doi)
+        print("Published through: ", paper.published_through)
+        print()
+        print_counter += 1
 
 
+#Callback #2
 global dblp_title_counter
 global mag_title_counter
 global dblp_title_char_counter
@@ -83,7 +162,6 @@ dblp_title_counter = 0
 mag_title_counter = 0
 dblp_title_char_counter = 0
 mag_title_char_counter = 0
-
 def counter(paper):
     global dblp_title_counter
     global mag_title_counter
@@ -99,12 +177,20 @@ def counter(paper):
             mag_title_char_counter += len(paper.title)
 
 
+#Callback #3
+def doi_search(line,paper):
+    key_start = line.find('key="') + 5
+    key_end = line.find('"', key_start)
+    if key_start != -1 and key_end != -1:
+        paper.doi = line[key_start:key_end]
+
+
 
 file_path_dblp = 'dblp.xml.gz'
-parse_DBLP_file(file_path_dblp, print_paper, counter)
+parse_DBLP_file(file_path_dblp, print_paper, counter,doi_search)
 
-file_path_MAG = 'Papers.txt.gz'
-parse_MAG_file(file_path_MAG, print_paper, counter)
+#file_path_MAG = 'Papers.txt.gz'
+#parse_MAG_file(file_path_MAG, print_paper, counter)
 
 print("MAG title count:", mag_title_counter)
 print("DBLP title count:", dblp_title_counter)
