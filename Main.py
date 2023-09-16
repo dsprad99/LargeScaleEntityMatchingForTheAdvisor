@@ -16,7 +16,7 @@ class Paper:
         self.file_source = None
 
 
-def parse_DBLP_file(file_path, callback, callback2, callback3):
+def parse_DBLP_file(file_path, callback, callback2, callback3,callback4):
     current_paper = None
     with gzip.open(file_path, 'rt', encoding='utf-8') as gz_file:
         for line in gz_file:
@@ -25,6 +25,7 @@ def parse_DBLP_file(file_path, callback, callback2, callback3):
             if '<article' in line and '</article>' in line:
                 callback2(current_paper)
                 callback(current_paper)
+                callback4(current_paper)
                 current_paper = Paper()
                 callback3(line,current_paper)
                 current_paper.file_source = "DBLP"
@@ -32,6 +33,7 @@ def parse_DBLP_file(file_path, callback, callback2, callback3):
             elif '<article' in line and '</inproceedings>' in line:
                 callback2(current_paper)
                 callback(current_paper)
+                callback4(current_paper)
                 current_paper = Paper()
                 callback3(line,current_paper)
                 current_paper.file_source = "DBLP"
@@ -39,6 +41,7 @@ def parse_DBLP_file(file_path, callback, callback2, callback3):
             elif '<inproceedings' in line and '</article>' in line:
                 callback2(current_paper)
                 callback(current_paper)
+                callback4(current_paper)
                 current_paper = Paper()
                 callback3(line,current_paper)
                 current_paper.file_source = "DBLP"
@@ -46,6 +49,7 @@ def parse_DBLP_file(file_path, callback, callback2, callback3):
             elif '<incollection' in line and '</incollection>' in line:
                 callback2(current_paper)
                 callback(current_paper)
+                callback4(current_paper)
                 current_paper = Paper()
                 callback3(line,current_paper)
                 current_paper.file_source = "DBLP"
@@ -53,6 +57,7 @@ def parse_DBLP_file(file_path, callback, callback2, callback3):
             elif '<article' in line and '</incollection>' in line:
                 callback2(current_paper)
                 callback(current_paper)
+                callback4(current_paper)
                 current_paper = Paper()
                 callback3(line,current_paper)
                 current_paper.file_source = "DBLP"
@@ -60,6 +65,7 @@ def parse_DBLP_file(file_path, callback, callback2, callback3):
             elif '<incollection' in line and '</article>' in line:
                 callback2(current_paper)
                 callback(current_paper)
+                callback4(current_paper)
                 current_paper = Paper()
                 callback3(line,current_paper)
                 current_paper.file_source = "DBLP"
@@ -67,6 +73,7 @@ def parse_DBLP_file(file_path, callback, callback2, callback3):
             elif '<inproceedings' in line and '</inproceedings>' in line:
                 callback2(current_paper)
                 callback(current_paper)
+                callback4(current_paper)
                 current_paper = Paper()
                 callback3(line,current_paper)
                 current_paper.file_source = "DBLP"
@@ -79,6 +86,8 @@ def parse_DBLP_file(file_path, callback, callback2, callback3):
             elif '</article>' in line and current_paper:
                 callback2(current_paper)
                 callback(current_paper)
+                callback4(current_paper)
+                current_paper = Paper()
 
             elif '<incollection' in line:
                 current_paper = Paper()
@@ -88,6 +97,8 @@ def parse_DBLP_file(file_path, callback, callback2, callback3):
             elif '</incollection>' in line and current_paper:
                 callback2(current_paper)
                 callback(current_paper)
+                callback4(current_paper)
+                current_paper = Paper()
 
             elif '<inproceedings' in line:
                 current_paper = Paper()
@@ -97,7 +108,10 @@ def parse_DBLP_file(file_path, callback, callback2, callback3):
             elif '</inproceedings>' in line and current_paper:
                 callback2(current_paper)
                 callback(current_paper)
-                current_paper = None
+                callback4(current_paper)
+                current_paper = Paper()
+
+
             elif current_paper:
                 if '<author>' in line:
                     current_paper.author = line.replace('<author>', '').replace('</author>', '').strip()
@@ -107,6 +121,7 @@ def parse_DBLP_file(file_path, callback, callback2, callback3):
                     current_paper.pages = line.replace('<pages>', '').replace('</pages>', '').strip()
                 elif '<title>' in line:
                     current_paper.title = line.replace('<title>', '').replace('</title>', '').strip()
+    
                     
 
                 elif '<url>' in line:
@@ -123,7 +138,7 @@ def parse_MAG_file(file_path, callback, callback2):
             fields = line.strip().split('\t')
             current_paper = Paper()
             # field[0] = the paper's MAG ID
-            paper_identification,doi_num, paper_title = fields[0],fields,[1], fields[4]
+            paper_identification, doi_num, paper_title = fields[0], fields[1], fields[4]
             current_paper.paper_id = paper_identification
             current_paper.doi = doi_num
             current_paper.title = paper_title
@@ -185,12 +200,40 @@ def doi_search(line,paper):
         paper.doi = line[key_start:key_end]
 
 
+#implement this into parsing
+global mer_hash
+mer_hash = {}
+
+def mer_hashtable(paper):
+    x = 3
+    current_mer = ""
+
+    for i in range(0, x):
+        if i < len(paper.title):
+            current_mer += paper.title[i]
+
+    while x <= len(paper.title):
+        if current_mer not in mer_hash:
+            mer_hash[current_mer] = [paper.doi]  
+        else:
+            mer_hash[current_mer].append(paper.doi)  
+
+        #to test hashmap   
+        #print(mer_hash.get(current_mer))
+        
+        if x < len(paper.title):
+            current_mer = current_mer[1:] + paper.title[x]
+        else:
+            break  
+        x += 1
+
+
 
 file_path_dblp = 'dblp.xml.gz'
-parse_DBLP_file(file_path_dblp, print_paper, counter,doi_search)
+parse_DBLP_file(file_path_dblp, print_paper, counter,doi_search, mer_hashtable)
 
-#file_path_MAG = 'Papers.txt.gz'
-#parse_MAG_file(file_path_MAG, print_paper, counter)
+file_path_MAG = 'Papers.txt.gz'
+parse_MAG_file(file_path_MAG, print_paper, counter)
 
 print("MAG title count:", mag_title_counter)
 print("DBLP title count:", dblp_title_counter)
