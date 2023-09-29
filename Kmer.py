@@ -13,9 +13,9 @@ def query_selector(title, mer_hash,x):
     for kmer in arr:
         for each_paper in mer_hash[kmer]:
             if each_paper in count:
-                count[each_paper] = 1
-            else:
                 count[each_paper] += 1
+            else:
+                count[each_paper] = 1
 
         
     print(count)
