@@ -20,7 +20,7 @@ def parse_DBLP_file(file_path,callback):
     with gzip.open(file_path, 'rt', encoding='utf-8') as gz_file:
         cnt = 0
         for current_line in gz_file:
-            if cnt >100:
+            if cnt >10000:
                 break
             if ('</article>' in current_line or '</inproceedings>' in current_line or '</incollection>' in current_line or '</book>' in current_line) and ('<article' in current_line or '<inproceedings' in current_line or '<incollection' in current_line or '<book' in current_line):
                 for fnction in callback:

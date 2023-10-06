@@ -1,7 +1,8 @@
 import matplotlib.pyplot as plt
 import sys
 
-
+global count
+count = {}
 def query_selector(title, mer_hash,x):
 #count = {}
 #for each kmer in querytitle
@@ -18,9 +19,7 @@ def query_selector(title, mer_hash,x):
             else:
                 count[each_paper] = 1
 
-        
-    print(count)
-
+    histogramQuery(count)
 
 
 #callback 4
@@ -70,10 +69,7 @@ def mer_hashtable(paper,x):
 
 
 
-def histogramMers(mer_hash,hash_counter):
-    # Generate and print the histogram of the top 20 k-mers from a sampel size of 1000
-    if hash_counter == 10000:
-
+def histogramMers(mer_hash):
         #the 20 on the end will take the 20 most frequent mer values
         top_k_mers = sorted(mer_hash.items(), key=lambda x: len(x[1]), reverse=True)[:20]
 
@@ -87,3 +83,19 @@ def histogramMers(mer_hash,hash_counter):
         plt.title("Top 20 K-mers Histogram")
         plt.tight_layout()
         plt.show()
+
+
+def histogramQuery(count_dict):
+    # Generate and print the histogram
+    top_k_mers = sorted(count_dict.items(), key=lambda x: x[1], reverse=True)[:20]
+
+    k_mer_labels, k_mer_counts = zip(*top_k_mers)
+
+    bar_width = 0.5
+    plt.bar(range(len(k_mer_labels)), k_mer_counts, width=bar_width)
+    plt.xticks(range(len(k_mer_labels)), k_mer_labels, rotation=90)
+    plt.xlabel("DBLP Ids")
+    plt.ylabel("Frequency with hashmap")
+    plt.title("Top 20 DBLP ID's Histogram")
+    plt.tight_layout()
+    plt.show()
