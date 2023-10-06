@@ -8,6 +8,7 @@ def query_selector(title, mer_hash,x):
 # for each paper in hash[kmer]
 #	count[paper] + = 1
 #print count
+
     count = {}
     arr = mer_builder(title,x)
     for kmer in arr:
@@ -52,8 +53,11 @@ global mer_hash
 mer_hash = {}
 global hash_counter
 hash_counter = 0
+global memory_counter
+memory_counter = 0
 def mer_hashtable(paper,x):
     global hash_counter
+    global memory_counter
     mer_array = mer_builder(paper.title,x)
     # Want the local id as the value
     for arr in mer_array:
@@ -63,23 +67,6 @@ def mer_hashtable(paper,x):
             mer_hash[arr].append(paper.paper_id)
     
     hash_counter += 1
-    
-    #if hash_counter <= 10:
-    #   print(mer_hash)
-    calculate_memory_usage(mer_hash)
-    #histogramMers(mer_hash, hash_counter)
-
-
-
-global total_memory_allocated
-total_memory_allocated = 0
-def calculate_memory_usage(var):
-    global total_memory_allocated
-    memory_allocated = sys.getsizeof(var)
-    total_memory_allocated += memory_allocated
-
-def get_memory_usage():
-    return total_memory_allocated
 
 
 

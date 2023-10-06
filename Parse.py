@@ -17,17 +17,17 @@ class Paper:
 
 def parse_DBLP_file(file_path,callback):
     current_paper = None
-    line_counter = 0  
     with gzip.open(file_path, 'rt', encoding='utf-8') as gz_file:
+        cnt = 0
         for current_line in gz_file:
-            if line_counter >= 20000:  
+            if cnt >100:
                 break
-            line_counter += 1
             if ('</article>' in current_line or '</inproceedings>' in current_line or '</incollection>' in current_line or '</book>' in current_line) and ('<article' in current_line or '<inproceedings' in current_line or '<incollection' in current_line or '<book' in current_line):
                 for fnction in callback:
                     fnction(current_paper)
                 current_paper = None
                 current_paper = Paper()
+                cnt+=1
                 current_paper.file_source = "DBLP"
           
             elif '<article' in current_line or '<inproceedings' in current_line or '<incollection' in current_line or '<book' in current_line:
@@ -37,6 +37,7 @@ def parse_DBLP_file(file_path,callback):
             elif '</article>' in current_line or '</inproceedings>' in current_line or '</incollection>' in current_line or '</book>' in current_line:
                 for fnction in callback:
                     fnction(current_paper)
+                    cnt+=1
                 current_paper = None
             
             if current_paper:
@@ -68,9 +69,6 @@ def parse_MAG_file(file_path,callback):
     line_counter = 0
     with gzip.open(file_path, 'rt', encoding='utf-8') as file:
         for line in file:
-            if line_counter >= 20000: 
-                break
-            line_counter += 1
             fields = line.strip().split('\t')
             current_paper = Paper()
             # field[0] = the paper's MAG ID
