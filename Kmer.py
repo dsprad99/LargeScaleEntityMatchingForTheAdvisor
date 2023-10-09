@@ -31,18 +31,18 @@ def query_selector(title, mer_hash, x):
 #title: hello
 #array: mer_array = [hel, elo, llo]
 
-def mer_builder(paper,x):  
+def mer_builder(paper_title,x):  
     current_mer = ""
     mer_array = []
 
-    if paper is not None:
+    if paper_title is not None:
         for i in range(0, x):
-            if i < len(paper):
-                current_mer += paper[i]   
+            if i < len(paper_title):
+                current_mer += paper_title[i]   
         mer_array.append(current_mer)
 
-        while x < len(paper):
-            current_mer = current_mer[1:] + paper[x]
+        while x < len(paper_title):
+            current_mer = current_mer[1:] + paper_title[x]
             mer_array.append(current_mer)
             x+=1
 
@@ -54,6 +54,7 @@ def mer_builder(paper,x):
 #ID's associated for every mer
 def mer_hashtable(paper, x, mer_hash):
     mer_array = mer_builder(paper.title, x)
+    
     for arr in mer_array:
         if arr not in mer_hash:
             mer_hash[arr] = [paper.paper_id]
@@ -62,9 +63,14 @@ def mer_hashtable(paper, x, mer_hash):
 
 
 
-def histogramMers(mer_hash):
+def histogramMers(mer_hash, filename = None):
         #the 20 on the end will take the 20 most frequent mer values
+
         top_k_mers = sorted(mer_hash.items(), key=lambda x: len(x[1]), reverse=True)[:20]
+        
+        if not top_k_mers:
+            print("No k-mers found in the hash.")
+            return
 
         k_mer_labels, k_mer_counts = zip(*[(k, len(v)) for k, v in top_k_mers])
 
@@ -75,20 +81,28 @@ def histogramMers(mer_hash):
         plt.ylabel("Frequency with hashmap")
         plt.title("Top 20 K-mers Histogram")
         plt.tight_layout()
-        plt.show()
+
+        if filename:
+            plt.savefig(filename)
+        else:
+            plt.show()
 
 
-def histogramQuery(count_dict):
+def histogramQuery(count_dict, filename= None):
     # Generate and print the histogram
     top_k_mers = sorted(count_dict.items(), key=lambda x: x[1], reverse=True)[:20]
 
     k_mer_labels, k_mer_counts = zip(*top_k_mers)
 
     bar_width = 0.5
-    plt.bar(range(len(k_mer_labels)), k_mer_counts, width=bar_width)
+    plt.bar(range(len(k_mer_labels)), k_mer_counts, width=bar_width, color='blue')
     plt.xticks(range(len(k_mer_labels)), k_mer_labels, rotation=90)
     plt.xlabel("DBLP Ids")
     plt.ylabel("Frequency with hashmap")
     plt.title("Top 20 DBLP ID's Histogram")
     plt.tight_layout()
-    plt.show()
+
+    if filename:
+        plt.savefig(filename)
+    else:
+        plt.show()

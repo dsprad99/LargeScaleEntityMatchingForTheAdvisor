@@ -1,6 +1,6 @@
 from Callback import print_paper
 from Parse import Paper, parse_DBLP_file, parse_MAG_file
-from Kmer import query_selector, mer_hashtable, histogramQuery
+from Kmer import query_selector, mer_hashtable, histogramQuery,histogramMers
 import os, psutil
 process = psutil.Process()
 
@@ -16,16 +16,16 @@ def main():
     mag_mer_hash = {}
 
     dblp_callbacks = [
-#        lambda current_paper: print_paper(current_paper),
+        #lambda current_paper: print_paper(current_paper),
         lambda current_paper: mer_hashtable(current_paper, 3, dblp_mer_hash)
     ]
-    parse_DBLP_file(file_path_dblp, dblp_callbacks)
+    parse_DBLP_file(file_path_dblp, dblp_callbacks,10000)
 
     mag_callbacks = [
         #lambda current_paper: print_paper(current_paper),
-        lambda current_paper: mer_hashtable(current_paper, 3, dblp_mer_hash) 
+        lambda current_paper: mer_hashtable(current_paper, 3, mag_mer_hash) 
     ]
-    #parse_MAG_file(file_path_MAG, mag_callbacks)
+    parse_MAG_file(file_path_MAG, mag_callbacks,10000)
 
     #memoryatend = process.memory_info().rss 
     #print(memoryatend/1024/1024)
@@ -35,9 +35,14 @@ def main():
     query_count2 = query_selector("Definite Resolution over Constraint Languages", dblp_mer_hash, 3)
     query_count3 = query_selector("LILOG-DB: Database Support for Knowledge-Based Systems", dblp_mer_hash, 3)
 
+    histogramQuery(query_count1, filename="query_histogram_DBLP_1.png")
     histogramQuery(query_count1)
-    #histogramQuery(query_count2)
-    #histogramQuery(query_count3)
+    histogramQuery(query_count2, filename="query_histogram_DBLP_2.png")
+    histogramQuery(query_count2)
+    histogramQuery(query_count3, filename="query_histogram_DBLP_3.png")
+
+    #histogramMers(dblp_mer_hash, filename="most_frequent_mer_DBLP_histogram.png")
+    #histogramMers(mag_mer_hash, filename="most_frequent_mer_MAG_histogram.png")
  
 
 if __name__ == "__main__":
