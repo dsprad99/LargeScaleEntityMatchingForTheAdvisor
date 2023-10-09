@@ -8,6 +8,8 @@ class Callback:
 global print_counter
 print_counter = 0
 
+
+#allows program to print paper attributes from passing in a paper object
 def print_paper(paper):
     global print_counter
     if print_counter < 30:
@@ -38,6 +40,7 @@ dblp_title_counter = 0
 mag_title_counter = 0
 dblp_title_char_counter = 0
 mag_title_char_counter = 0
+#able to count number of papers in MAG and DBLP datasets
 def counter(paper):
     global dblp_title_counter
     global mag_title_counter

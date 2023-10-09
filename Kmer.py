@@ -1,28 +1,30 @@
 import matplotlib.pyplot as plt
 import sys
 
-global count
-count = {}
-def query_selector(title, mer_hash,x):
-#count = {}
-#for each kmer in querytitle
-# for each paper in hash[kmer]
-#	count[paper] + = 1
-#print count
+
+#allows us to query a title from our mer_hash that contains
+#an ID for every mer that exists
+#therefore using the mer_hash it is able to identify the frequency of 
+#mers associated with an ID number to find the best candidate
+def query_selector(title, mer_hash, x):
+
+    #count = {}
+    #for each kmer in querytitle
+    # for each paper in hash[kmer]
+    #	count[paper] + = 1
+    #print count
 
     count = {}
-    arr = mer_builder(title,x)
+    arr = mer_builder(title, x)
     for kmer in arr:
         for each_paper in mer_hash[kmer]:
             if each_paper in count:
                 count[each_paper] += 1
             else:
                 count[each_paper] = 1
+    return count
 
-    histogramQuery(count)
 
-
-#callback 4
 #mer_builder allows for us to build an array of 
 #k mers in a given string
 #example
@@ -47,25 +49,16 @@ def mer_builder(paper,x):
     return mer_array
 
 
-
-global mer_hash
-mer_hash = {}
-global hash_counter
-hash_counter = 0
-global memory_counter
-memory_counter = 0
-def mer_hashtable(paper,x):
-    global hash_counter
-    global memory_counter
-    mer_array = mer_builder(paper.title,x)
-    # Want the local id as the value
+#allows us to take in a paper object along with the k-mer represented by x
+#in this instance and will build the mer_hash table which will have an ID or 
+#ID's associated for every mer
+def mer_hashtable(paper, x, mer_hash):
+    mer_array = mer_builder(paper.title, x)
     for arr in mer_array:
         if arr not in mer_hash:
             mer_hash[arr] = [paper.paper_id]
         else:
             mer_hash[arr].append(paper.paper_id)
-    
-    hash_counter += 1
 
 
 
