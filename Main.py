@@ -19,13 +19,13 @@ def main():
         #lambda current_paper: print_paper(current_paper),
         lambda current_paper: mer_hashtable(current_paper, 3, dblp_mer_hash)
     ]
-    parse_DBLP_file(file_path_dblp, dblp_callbacks,10000)
+    parse_DBLP_file(file_path_dblp, dblp_callbacks,100000)
 
     mag_callbacks = [
         #lambda current_paper: print_paper(current_paper),
         lambda current_paper: mer_hashtable(current_paper, 3, mag_mer_hash) 
     ]
-    parse_MAG_file(file_path_MAG, mag_callbacks,10000)
+    parse_MAG_file(file_path_MAG, mag_callbacks,100000)
 
     #memoryatend = process.memory_info().rss 
     #print(memoryatend/1024/1024)
@@ -41,7 +41,7 @@ def main():
     histogramQuery(query_count2)
     histogramQuery(query_count3, filename="query_histogram_DBLP_3.png")
 
-    #histogramMers(dblp_mer_hash, filename="most_frequent_mer_DBLP_histogram.png")
+    histogramMers(dblp_mer_hash, filename="most_frequent_mer_DBLP_histogram.png")
     #histogramMers(mag_mer_hash, filename="most_frequent_mer_MAG_histogram.png")
  
 
