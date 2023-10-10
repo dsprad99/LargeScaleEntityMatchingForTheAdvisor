@@ -15,9 +15,18 @@ def print_paper(paper):
     if print_counter < 30:
         if paper is not None:
             print("Author:", paper.author if paper.author else "None")
-            # Handle encoding errors by replacing non-encodable characters
-            title = paper.title.encode('utf-8', errors='replace').decode('utf-8')
-            print("Title:", title if title else "None")
+
+            #note that due to a UTF-8 error I have a try catch statement here 
+            #inorder to skip the title if there is an error with the unicode however
+            #the characters within the title that are parsed will still remain the same what
+            #is printed out is the only thing differnt
+            try:
+                # Encode the title as UTF-8 and decode it
+                title = paper.title.encode('utf-8', errors='ignore').decode('utf-8', errors='ignore')
+                print("Title:", title if title else "None")
+            except UnicodeEncodeError:
+                print("Title: [Unable to display due to encoding error]")
+                
             print("Paper ID: ", paper.paper_id if paper.paper_id else "None")
             print("Year:", paper.year if paper.year else "None")
             print("Pages:", paper.pages if paper.pages else "None")

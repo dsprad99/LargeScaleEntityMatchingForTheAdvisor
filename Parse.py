@@ -37,7 +37,7 @@ def parse_DBLP_file(file_path,callback,count_to):
             elif '</article>' in current_line or '</inproceedings>' in current_line or '</incollection>' in current_line or '</book>' in current_line:
                 for fnction in callback:
                     fnction(current_paper)
-                    count_line+=1
+                count_line+=1
                 current_paper = None
             
             if current_paper:
@@ -69,6 +69,7 @@ def parse_MAG_file(file_path,callback, count_to):
     line_counter = 0
     with gzip.open(file_path, 'rt', encoding='utf-8') as file:
         for line in file:
+            line = line.encode('utf-8', errors='replace').decode('utf-8')
             if(line_counter > count_to):
                 return
             line_counter += 1

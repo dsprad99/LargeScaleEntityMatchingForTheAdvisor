@@ -2,6 +2,12 @@ import matplotlib.pyplot as plt
 import sys
 
 
+#*Documentation* if when developing the mer_hash table and you 
+#pass that you do want it to generate characters in lowercase 
+#then when querying you also must pass that you want it to devleop the 
+#hash table used to develop in lowercase or you will get an error
+
+
 #allows us to query a title from our mer_hash that contains
 #an ID for every mer that exists
 #therefore using the mer_hash it is able to identify the frequency of 
@@ -15,7 +21,7 @@ def query_selector(title, mer_hash, x):
     #print count
 
     count = {}
-    arr = mer_builder(title, x)
+    arr = mer_builder(title, x, False)
     for kmer in arr:
         for each_paper in mer_hash[kmer]:
             if each_paper in count:
@@ -31,20 +37,36 @@ def query_selector(title, mer_hash, x):
 #title: hello
 #array: mer_array = [hel, elo, llo]
 
-def mer_builder(paper_title,x):  
-    current_mer = ""
-    mer_array = []
+def mer_builder(paper_title,x, lower_case):  
+    if lower_case:
+        current_mer = ""
+        mer_array = []
 
-    if paper_title is not None:
-        for i in range(0, x):
-            if i < len(paper_title):
-                current_mer += paper_title[i]   
-        mer_array.append(current_mer)
+        if paper_title is not None:
+            for i in range(0, x):
+                if i < len(paper_title):
+                    current_mer += paper_title[i]   
+            mer_array.append(current_mer.lower())
 
-        while x < len(paper_title):
-            current_mer = current_mer[1:] + paper_title[x]
+            while x < len(paper_title):
+                current_mer = current_mer[1:] + paper_title[x]
+                mer_array.append(current_mer.lower())
+                x+=1
+
+    else:
+        current_mer = ""
+        mer_array = []
+
+        if paper_title is not None:
+            for i in range(0, x):
+                if i < len(paper_title):
+                    current_mer += paper_title[i]   
             mer_array.append(current_mer)
-            x+=1
+
+            while x < len(paper_title):
+                current_mer = current_mer[1:] + paper_title[x]
+                mer_array.append(current_mer)
+                x+=1
 
     return mer_array
 
@@ -52,9 +74,8 @@ def mer_builder(paper_title,x):
 #allows us to take in a paper object along with the k-mer represented by x
 #in this instance and will build the mer_hash table which will have an ID or 
 #ID's associated for every mer
-def mer_hashtable(paper, x, mer_hash):
-    mer_array = mer_builder(paper.title, x)
-    
+def mer_hashtable(paper, x, mer_hash, lower_case):
+    mer_array = mer_builder(paper.title, x, lower_case)
     for arr in mer_array:
         if arr not in mer_hash:
             mer_hash[arr] = [paper.paper_id]
@@ -96,7 +117,7 @@ def histogramQuery(count_dict, filename= None):
 
     bar_width = 0.5
     plt.bar(range(len(k_mer_labels)), k_mer_counts, width=bar_width, color='blue')
-    plt.xticks(range(len(k_mer_labels)), k_mer_labels, rotation=90)
+    plt.xticks(range(len(k_mer_labels)), k_mer_labels, rotation=90, fontsize=8)  # Adjust the fontsize here
     plt.xlabel("DBLP Ids")
     plt.ylabel("Frequency with hashmap")
     plt.title("Top 20 DBLP ID's Histogram")
