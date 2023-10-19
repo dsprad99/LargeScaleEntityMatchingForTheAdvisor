@@ -20,15 +20,15 @@ def main():
         #lambda current_paper: print_paper(current_paper),
         lambda current_paper: mer_hashtable(current_paper, 3, dblp_mer_hash,lower_case = False)
     ]
-    parse_DBLP_file(file_path_dblp, dblp_callbacks,6000000)
+    parse_DBLP_file(file_path_dblp, dblp_callbacks,1000)
 
     mag_callbacks = [
         #lambda current_paper: print_paper(current_paper),
         lambda current_paper: mer_hashtable(current_paper, 3, mag_mer_hash,lower_case = False),
-        lambda current_paper: query_selector_MAG_test(current_paper.title, mag_mer_hash, 3)
+        lambda current_paper: query_selector_MAG_test(current_paper.title, dblp_mer_hash, 3)
     ]
     start = time.time()
-    parse_MAG_file(file_path_MAG, mag_callbacks,40000)
+    parse_MAG_file(file_path_MAG, mag_callbacks,200)
     end = time.time()
     print(end - start)
 

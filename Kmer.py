@@ -31,6 +31,36 @@ def query_selector(title, mer_hash, x):
     return count
 
 
+#purpose of this function is to test how long it takes 
+#to query through the DBLP hashtable given MAG titles
+
+#we have a try catch statement in the background that is 
+#made to catch any error in the second for loop where if our 
+#mer is not in our dblp hash table then we will not get an error
+#but it will just pass over it
+def query_selector_MAG_test(title, mer_hash, x):
+
+    #count = {}
+    #for each kmer in querytitle
+    # for each paper in hash[kmer]
+    #	count[paper] + = 1
+    #print count
+
+    count = {}
+    arr = mer_builder(title, x, False)
+    for kmer in arr:
+        try:
+            for each_paper in mer_hash[kmer]:
+                if each_paper in count:
+                    count[each_paper] += 1
+                else:
+                    count[each_paper] = 1
+        except KeyError as e:
+        
+            pass
+    return count
+
+
 #mer_builder allows for us to build an array of 
 #k mers in a given string
 #example
@@ -87,7 +117,7 @@ def mer_hashtable(paper, x, mer_hash, lower_case):
 def histogramMers(mer_hash, filename = None):
         #the 20 on the end will take the 20 most frequent mer values
 
-        top_k_mers = sorted(mer_hash.items(), key=lambda x: len(x[1]), reverse=True)[:20]
+        top_k_mers = sorted(mer_hash.items(), key=lambda x: len(x[1]), reverse=True)[:200]
         
         if not top_k_mers:
             print("No k-mers found in the hash.")
@@ -97,10 +127,10 @@ def histogramMers(mer_hash, filename = None):
 
         bar_width = .5
         plt.bar(range(len(k_mer_labels)), k_mer_counts, width=bar_width)
-        plt.xticks(range(len(k_mer_labels)), k_mer_labels, rotation=30)
+        plt.xticks(range(len(k_mer_labels)), k_mer_labels, rotation=90, fontsize=4)
         plt.xlabel("K-mer")
         plt.ylabel("Frequency with hashmap")
-        plt.title("Top 20 K-mers Histogram")
+        plt.title("Top 200 K-mers Histogram")
         plt.tight_layout()
 
         if filename:
