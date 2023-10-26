@@ -1,6 +1,6 @@
 from Callback import print_paper
 from Parse import Paper, parse_DBLP_file, parse_MAG_file
-from Kmer import query_selector, mer_hashtable, histogramQuery,histogramMers,query_selector_MAG_test
+from Kmer import query_selector,mer_hashtable, histogramQuery,histogramMers,query_selector_MAG_test, remove_top_k_mers
 import os, psutil
 process = psutil.Process()
 import time
@@ -20,15 +20,16 @@ def main():
         #lambda current_paper: print_paper(current_paper),
         lambda current_paper: mer_hashtable(current_paper, 3, dblp_mer_hash,lower_case = False)
     ]
-    parse_DBLP_file(file_path_dblp, dblp_callbacks,1000)
+    parse_DBLP_file(file_path_dblp, dblp_callbacks,6000000)
+    print("DBLP hash table built")
 
     mag_callbacks = [
         #lambda current_paper: print_paper(current_paper),
-        lambda current_paper: mer_hashtable(current_paper, 3, mag_mer_hash,lower_case = False),
-        lambda current_paper: query_selector_MAG_test(current_paper.title, dblp_mer_hash, 3)
+        #lambda current_paper: mer_hashtable(current_paper, 3, mag_mer_hash,lower_case = False),
+        lambda current_paper: query_selector_MAG_test(current_paper.title, remove_top_k_mers(dblp_mer_hash , 20), 3)
     ]
     start = time.time()
-    parse_MAG_file(file_path_MAG, mag_callbacks,200)
+    parse_MAG_file(file_path_MAG, mag_callbacks,10)
     end = time.time()
     print(end - start)
 
@@ -50,11 +51,9 @@ def main():
     #histogramQuery(query_count2)
     #histogramQuery(query_count3, filename="query_histogram_DBLP_3.png")
 
-    #histogramMers(dblp_mer_hash, filename="most_frequent_200_mer_DBLP_histogram.png")
-    #histogramMers(mag_mer_hash, filename="most_frequent_mer_MAG_histogram.png")
+    #histogramMers(dblp_mer_hash,5001,5201, filename="removing_most_frequent_5000_mer_DBLP_histogram.png")
+    #histogramMers(mag_mer_hash,1,20, filename="most_frequent_mer_MAG_histogram.png")
 
-
- 
 
 if __name__ == "__main__":
     main()

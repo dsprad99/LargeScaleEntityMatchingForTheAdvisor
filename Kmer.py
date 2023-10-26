@@ -47,17 +47,19 @@ def query_selector_MAG_test(title, mer_hash, x):
     #print count
 
     count = {}
+    cost=0
     arr = mer_builder(title, x, False)
     for kmer in arr:
         try:
             for each_paper in mer_hash[kmer]:
+                cost = cost+1
                 if each_paper in count:
                     count[each_paper] += 1
                 else:
                     count[each_paper] = 1
         except KeyError as e:
-        
             pass
+    print ("matching: ", title, "cost: ", cost, "in ", len(count))
     return count
 
 
@@ -100,7 +102,6 @@ def mer_builder(paper_title,x, lower_case):
 
     return mer_array
 
-
 #allows us to take in a paper object along with the k-mer represented by x
 #in this instance and will build the mer_hash table which will have an ID or 
 #ID's associated for every mer
@@ -113,30 +114,49 @@ def mer_hashtable(paper, x, mer_hash, lower_case):
             mer_hash[arr].append(paper.paper_id)
 
 
+def remove_top_k_mers(mer_hash, k):
+        # Sort k-mers by frequency in descending order
+        sorted_k_mers = sorted(mer_hash.items(), key=lambda x: len(x[1]), reverse=True)
 
-def histogramMers(mer_hash, filename = None):
-        #the 20 on the end will take the 20 most frequent mer values
+        # Get the top k k-mers
+        top_k_mers = sorted_k_mers[:k]
 
-        top_k_mers = sorted(mer_hash.items(), key=lambda x: len(x[1]), reverse=True)[:200]
-        
-        if not top_k_mers:
-            print("No k-mers found in the hash.")
-            return
+        # Remove the top k k-mers from the hash table
+        for k_mer, papers in top_k_mers:
+            del mer_hash[k_mer]
 
-        k_mer_labels, k_mer_counts = zip(*[(k, len(v)) for k, v in top_k_mers])
+        return mer_hash
 
-        bar_width = .5
-        plt.bar(range(len(k_mer_labels)), k_mer_counts, width=bar_width)
-        plt.xticks(range(len(k_mer_labels)), k_mer_labels, rotation=90, fontsize=4)
-        plt.xlabel("K-mer")
-        plt.ylabel("Frequency with hashmap")
-        plt.title("Top 200 K-mers Histogram")
-        plt.tight_layout()
 
-        if filename:
-            plt.savefig(filename)
-        else:
-            plt.show()
+#allows us to take in a paper object along with the k-mer represented by x
+#in this instance and will build the mer_hash table which will have an ID or 
+#ID's associated for every mer
+def histogramMers(mer_hash,start_num,end_num, filename=None):
+    # Sort k-mers by frequency in descending order
+    sorted_k_mers = sorted(mer_hash.items(), key=lambda x: len(x[1]), reverse=True)
+    
+    # Exclude the top 20 most frequent K-mers
+    top_k_mers = sorted_k_mers[start_num:end_num]  # Change the slice as needed
+
+    if not top_k_mers:
+        print("No k-mers found in the hash.")
+        return
+
+    k_mer_labels, k_mer_counts = zip(*[(k, len(v)) for k, v in top_k_mers])
+
+    bar_width = 0.5
+    plt.bar(range(len(k_mer_labels)), k_mer_counts, width=bar_width)
+    plt.xticks(range(len(k_mer_labels)), k_mer_labels, rotation=90, fontsize=4)
+    plt.xlabel("K-mer")
+    plt.ylabel("Frequency with hashmap")
+    plt.title("Top 200 K-mers Histogram")
+    plt.tight_layout()
+
+    if filename:
+        plt.savefig(filename)
+    else:
+        plt.show()
+
 
 
 def histogramQuery(count_dict, filename= None):
