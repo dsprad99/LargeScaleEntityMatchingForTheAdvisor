@@ -137,11 +137,13 @@ def remove_top_k_mers(mer_hash, k):
 
 def top_candidates(query_dataset,number_of_candidates,k_mer):
     sorted_matches = sorted(query_dataset.items(), key=lambda x: x[1], reverse=True)
-
-    # Print the top 3 matches
-    print("Top 3 Matches for using",k_mer,"mer for A Moldable Online Scheduling Algorithm and Its Application to Parallel Short Sequence Mapping.:")
+    candidates = []
     for i, (paper_id, frequency) in enumerate(sorted_matches[:number_of_candidates], 1):
-        print(f"{i}. Paper ID: {paper_id}, Frequency: {frequency}")
+        #should add the frequency of the candidate with the most matches at index 0 all the way to the least
+        candidates.append(frequency)
+    return candidates
+
+
 
 
 #allows us to take in a paper object along with the k-mer represented by x
