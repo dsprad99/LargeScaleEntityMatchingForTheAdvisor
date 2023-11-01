@@ -135,9 +135,13 @@ def remove_top_k_mers(mer_hash, k):
         return mer_hash
 
 
+#returns our top candidates from a hashmap of IDs and frequency of a k-mers from a string
 def top_candidates(query_dataset,number_of_candidates,k_mer):
+    #sort our matches in descending (reverse) order from greatest to least
     sorted_matches = sorted(query_dataset.items(), key=lambda x: x[1], reverse=True)
     candidates = []
+    #for each papers ID we will add it from greatest to least in our candidates array
+    #Note: we can add the paper_ID if we want to at some point using a 2D array
     for i, (paper_id, frequency) in enumerate(sorted_matches[:number_of_candidates], 1):
         #should add the frequency of the candidate with the most matches at index 0 all the way to the least
         candidates.append(frequency)
