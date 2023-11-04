@@ -19,33 +19,41 @@ def parse_DBLP_file(file_path,callback,count_to):
     current_paper = None
     with gzip.open(file_path, 'rt', encoding='utf-8') as gz_file:
         count_line = 0
+        prev_line = ""
+        pap = []
+        current_paper = None
+        #help us keep track of if we are inside a paper currently
+        inside_paper = False
         for current_line in gz_file:
             if count_line > count_to:
                 break
-            if ('</article>' in current_line or '</inproceedings>' in current_line or '</incollection>' in current_line or '</book>' in current_line) and ('<article' in current_line or '<inproceedings' in current_line or '<incollection' in current_line or '<book' in current_line):
-                if(current_paper == None or current_paper.title == None or current_paper.paper_id == None):
-                    current_paper = Paper()
-                    count_line+=1
-                    current_paper.file_source = "DBLP"
 
-                else:
+            #check for closing tag first for cases such as
+            #</incollection><incollection mdate="2017-07-12" key="reference/cn/Prinz14" publtype="encyclopedia">
+            if '</article>' in current_line or '</inproceedings>' in current_line or '</incollection>' in current_line or '</book>' in current_line:
+                inside_paper = False
+                if current_paper is not None and current_paper.title is not None and current_paper.paper_id is not None:
+                    #print("Paper is an Object")
+                    #for i in range(len(pap)):
+                     #   print(pap[i])
                     for fnction in callback:
                         fnction(current_paper)
                     current_paper = None
-                    current_paper = Paper()
-                    count_line+=1
-                    current_paper.file_source = "DBLP"
-          
-            elif '<article' in current_line or '<inproceedings' in current_line or '<incollection' in current_line or '<book' in current_line:
-                current_paper = Paper()
-                current_paper.file_source = "DBLP"
 
-            elif '</article>' in current_line or '</inproceedings>' in current_line or '</incollection>' in current_line or '</book>' in current_line:
-                for fnction in callback:
-                    fnction(current_paper)
-                count_line+=1
-                current_paper = None
+                else:
+                    print("Paper is not an Object")
+                    for i in range(len(pap)):
+                       print(pap[i])
             
+            #check for an opening tag to make a new Paper object
+            if '<article' in current_line or '<inproceedings' in current_line or '<incollection' in current_line or '<book' in current_line:
+                if not inside_paper:
+                    current_paper = Paper()
+                    current_paper.file_source = "DBLP"
+                    inside_paper = True
+
+            
+
             if current_paper:
                 if '<author>' in current_line:
                     current_paper.author = current_line.replace('<author>', '').replace('</author>', '').strip()
@@ -68,6 +76,10 @@ def parse_DBLP_file(file_path,callback,count_to):
                     #if a valid key
                     if key_start != -1 and key_end != -1:
                         current_paper.paper_id = current_line[key_start:key_end]
+
+                pap.append(current_line)
+                prev_line = current_line
+                count_line += 1
 
 
 def parse_MAG_file(file_path,callback, count_to):
