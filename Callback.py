@@ -7,8 +7,6 @@ class Callback:
 # Callback #1
 global print_counter
 print_counter = 0
-
-
 #allows program to print paper attributes from passing in a paper object
 def print_paper(paper):
     global print_counter

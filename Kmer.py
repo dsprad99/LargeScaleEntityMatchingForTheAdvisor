@@ -148,8 +148,7 @@ def top_candidates(query_dataset,number_of_candidates):
         individual_candidate = [paper_id, frequency]
         candidates.append(individual_candidate)
         
-    return candidates
-
+    return candidates    
 
 
 

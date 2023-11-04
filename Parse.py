@@ -23,12 +23,18 @@ def parse_DBLP_file(file_path,callback,count_to):
             if count_line > count_to:
                 break
             if ('</article>' in current_line or '</inproceedings>' in current_line or '</incollection>' in current_line or '</book>' in current_line) and ('<article' in current_line or '<inproceedings' in current_line or '<incollection' in current_line or '<book' in current_line):
-                for fnction in callback:
-                    fnction(current_paper)
-                current_paper = None
-                current_paper = Paper()
-                count_line+=1
-                current_paper.file_source = "DBLP"
+                if(current_paper == None or current_paper.title == None or current_paper.paper_id == None):
+                    current_paper = Paper()
+                    count_line+=1
+                    current_paper.file_source = "DBLP"
+
+                else:
+                    for fnction in callback:
+                        fnction(current_paper)
+                    current_paper = None
+                    current_paper = Paper()
+                    count_line+=1
+                    current_paper.file_source = "DBLP"
           
             elif '<article' in current_line or '<inproceedings' in current_line or '<incollection' in current_line or '<book' in current_line:
                 current_paper = Paper()
@@ -86,6 +92,7 @@ def parse_MAG_file(file_path,callback, count_to):
                 current_paper.doi = None
 
             current_paper.title = paper_title
+
             current_paper.file_source = "MAG"
             for fnction in callback:
                     fnction(current_paper)
