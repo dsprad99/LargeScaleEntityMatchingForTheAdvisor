@@ -28,21 +28,24 @@ def test_kmer_parameters(k, num_removed_kmers, paper_limit,chosen_probability):
             lambda current_paper: mer_hashtable(current_paper, k_value, dblp_mer_hash, lower_case=False),
             lambda current_paper: random_sample_papers(current_paper.title, current_paper.paper_id,chosen_probability)
             #lambda current_paper: random_sample_papers(current_paper.title if current_paper is not None else None, current_paper.paper_id if current_paper is not None else None, chosen_probability)
-
         ]
 
+        start_time_build_hashmap = time.time()
+        parse_DBLP_file(file_path_dblp, dblp_callbacks, paper_limit)
         print(f"DBLP hash table built for k={k_value}")
+        end_time_build_hashmap = time.time()
+        hashmap_build_time = end_time_build_hashmap-start_time_build_hashmap
+
+
+        remove_k_mer_sum = 0
 
         for j in range(len(num_removed_kmers)):
 
-            dblp_mer_hash = remove_top_k_mers(dblp_mer_hash,num_removed_kmers[j])
+            remove_k_mer_sum += num_removed_kmers[j]
 
-            start_time_build_hashmap = time.time()
-            parse_DBLP_file(file_path_dblp, dblp_callbacks, paper_limit)
-            end_time_build_hashmap = time.time()
-            hashmap_build_time = end_time_build_hashmap-start_time_build_hashmap
-            print(f"Removed top {num_removed_kmers[j]}")
+            print(f"Removed top {remove_k_mer_sum}")
         
+            dblp_mer_hash = remove_top_k_mers(dblp_mer_hash,num_removed_kmers[j])
             
             #record results for each trial so that we can append them later to our results array that keeps track of each trial
 
@@ -88,9 +91,9 @@ def test_kmer_parameters(k, num_removed_kmers, paper_limit,chosen_probability):
                     #print(successful_candidates, "-", total_random_papers)
                     average_success_rate = (successful_candidates / total_random_papers)*100
                     #print(average_success_rate)
-                    trial_results.append((k_value, num_removed_kmers[j], paper_limit, selected_dblp_papers[i][1], selected_dblp_papers[i][0], best_match_id, second_best_match_id, query_time, ratio, hashmap_build_time, average_success_rate))           
+                    trial_results.append((k_value, remove_k_mer_sum, paper_limit, selected_dblp_papers[i][1], selected_dblp_papers[i][0], best_match_id, second_best_match_id, query_time, ratio, hashmap_build_time, average_success_rate))           
                 else:
-                    trial_results.append((k_value, num_removed_kmers[j], paper_limit, selected_dblp_papers[i][1], selected_dblp_papers[i][0], best_match_id, second_best_match_id, query_time, ratio, hashmap_build_time,'-'))
+                    trial_results.append((k_value, remove_k_mer_sum, paper_limit, selected_dblp_papers[i][1], selected_dblp_papers[i][0], best_match_id, second_best_match_id, query_time, ratio, hashmap_build_time,'-'))
                 
             
 
@@ -109,7 +112,7 @@ def random_sample_papers(paper_title,paper_id,chosen_probability):
     global counter
     global selected_dblp_papers
     random_number = random.random()
-    if chosen_probability > random_number*100 and paper_title != None:
+    if chosen_probability > random_number*100:
             individual_paper = [paper_id, paper_title]
             selected_dblp_papers.append(individual_paper)
 
