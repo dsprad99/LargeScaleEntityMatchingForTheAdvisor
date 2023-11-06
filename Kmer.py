@@ -182,6 +182,38 @@ def histogramMers(mer_hash,start_num,end_num, filename=None):
         plt.show()
 
 
+def histogramRepeatedMers(mer_hash, start_num, end_num, filename=None):
+    if not isinstance(mer_hash, dict):
+        print("mer_hash should be a dictionary")
+        return
+
+    # Sort the dictionary items by the values (frequencies) in descending order
+    sorted_k_mers = sorted(mer_hash.items(), key=lambda x: x[1], reverse=True)
+
+    # Exclude the top K-mers within the specified range
+    top_k_mers = sorted_k_mers[start_num:end_num]
+
+    if not top_k_mers:
+        print("No K-mers found in the hash.")
+        return
+
+    k_mer_labels, k_mer_counts = zip(*top_k_mers)
+
+    bar_width = 0.5
+    plt.bar(range(len(k_mer_labels)), k_mer_counts, width=bar_width)
+    plt.xticks(range(len(k_mer_labels)), k_mer_labels, rotation=90, fontsize=9)
+    plt.xlabel("K-mer")
+    plt.ylabel("Frequency with hashmap")
+    plt.title(f"Top {end_num - start_num} Repeated K-mers Histogram")
+    plt.tight_layout()
+
+    if filename:
+        plt.savefig(filename)
+    else:
+        plt.show()
+
+
+
 
 def histogramQuery(count_dict, filename= None):
     # Generate and print the histogram
@@ -201,3 +233,24 @@ def histogramQuery(count_dict, filename= None):
         plt.savefig(filename)
     else:
         plt.show()
+
+
+
+
+def repeating_kmer_study(repeat_kmer_hashmap, title, mer_length):
+    title_repeated_count = {}
+    arr = mer_builder(title, mer_length, False)
+    for kmer in arr:
+        if kmer in title_repeated_count:
+            title_repeated_count[kmer] += 1
+        else:
+            title_repeated_count[kmer] = 1
+
+    for mer in title_repeated_count:
+        if title_repeated_count[mer] >= 2:
+            #if the mer is not in the hashmap there will also be no value in the hashamp
+            #therefore we will make a default value 0 
+            repeat_count = repeat_kmer_hashmap.get(mer, 0)
+            repeat_kmer_hashmap[mer] = repeat_count + (title_repeated_count[mer] - 1)
+
+
