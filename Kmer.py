@@ -12,7 +12,7 @@ import sys
 #an ID for every mer that exists
 #therefore using the mer_hash it is able to identify the frequency of 
 #mers associated with an ID number to find the best candidate
-def query_selector(title, mer_hash, x):
+def query_selector(title, mer_hash, x, mer_builder_callback):
 
     #count = {}
     #for each kmer in querytitle
@@ -21,7 +21,7 @@ def query_selector(title, mer_hash, x):
     #print count
 
     count = {}
-    arr = mer_builder(title, x, False)
+    arr = mer_builder_callback
     for kmer in arr:
         try:
             for each_paper in mer_hash[kmer]:
@@ -42,7 +42,7 @@ def query_selector(title, mer_hash, x):
 #made to catch any error in the second for loop where if our 
 #mer is not in our dblp hash table then we will not get an error
 #but it will just pass over it
-def query_selector_MAG_test(title, mer_hash, x):
+def query_selector_MAG_test(title, mer_hash, x, mer_builder_callback):
 
     #count = {}
     #for each kmer in querytitle
@@ -52,7 +52,7 @@ def query_selector_MAG_test(title, mer_hash, x):
 
     count = {}
     cost=0
-    arr = mer_builder(title, x, False)
+    arr = mer_builder_callback
     for kmer in arr:
         try:
             for each_paper in mer_hash[kmer]:
@@ -73,44 +73,46 @@ def query_selector_MAG_test(title, mer_hash, x):
 #title: hello
 #array: mer_array = [hel, elo, llo]
 
-def mer_builder(paper_title,x, lower_case):  
+def mer_builder(paper_title,x, lower_case = False, remove_spaces = False):  
+    
+    if paper_title is None:
+        return []
+
+    mer_array = []
+    current_mer = ""
+    i = 0
+    while len(current_mer) < x and i < len(paper_title):
+        if remove_spaces and paper_title[i] == ' ':
+            i += 1
+            continue
+        current_mer += paper_title[i]
+        i += 1
+
     if lower_case:
-        current_mer = ""
-        mer_array = []
+        current_mer = current_mer.lower()
+    mer_array.append(current_mer)
 
-        if paper_title is not None:
-            for i in range(0, x):
-                if i < len(paper_title):
-                    current_mer += paper_title[i]   
-            mer_array.append(current_mer.lower())
-
-            while x < len(paper_title):
-                current_mer = current_mer[1:] + paper_title[x]
-                mer_array.append(current_mer.lower())
-                x+=1
-
-    else:
-        current_mer = ""
-        mer_array = []
-
-        if paper_title is not None:
-            for i in range(0, x):
-                if i < len(paper_title):
-                    current_mer += paper_title[i]   
-            mer_array.append(current_mer)
-
-            while x < len(paper_title):
-                current_mer = current_mer[1:] + paper_title[x]
-                mer_array.append(current_mer)
-                x+=1
+    while i < len(paper_title):
+        #we will skip the current character value we are on
+        #if remove_spaces is true and we have a space
+        if remove_spaces and paper_title[i] == ' ':
+            i += 1
+            continue
+        #remove the first character of the current mer
+        #and add the next character not in the mer
+        current_mer = current_mer[1:] + paper_title[i]
+        if lower_case:
+            current_mer = current_mer.lower()
+        mer_array.append(current_mer)
+        i += 1
 
     return mer_array
 
 #allows us to take in a paper object along with the k-mer represented by x
 #in this instance and will build the mer_hash table which will have an ID or 
 #ID's associated for every mer
-def mer_hashtable(paper, x, mer_hash, lower_case):
-    mer_array = mer_builder(paper.title, x, lower_case)
+def mer_hashtable(paper, x, mer_hash, lower_case, mer_builder_callback):
+    mer_array = mer_builder_callback
     
     for arr in mer_array:
         if arr not in mer_hash:
@@ -129,7 +131,7 @@ def remove_top_k_mers(mer_hash, k):
         top_k_mers = sorted_k_mers[:k]
 
         # Remove the top k k-mers from the hash table
-        for k_mer, papers in top_k_mers:
+        for k_mer in top_k_mers:
             del mer_hash[k_mer]
 
         return mer_hash
@@ -237,9 +239,10 @@ def histogramQuery(count_dict, filename= None):
 
 
 
-def repeating_kmer_study(repeat_kmer_hashmap, title, mer_length):
+def repeating_kmer_study(repeat_kmer_hashmap, current_paper, mer_builder_callback):
     title_repeated_count = {}
-    arr = mer_builder(title, mer_length, False)
+    arr = mer_builder_callback(current_paper)
+
     for kmer in arr:
         if kmer in title_repeated_count:
             title_repeated_count[kmer] += 1
@@ -252,5 +255,4 @@ def repeating_kmer_study(repeat_kmer_hashmap, title, mer_length):
             #therefore we will make a default value 0 
             repeat_count = repeat_kmer_hashmap.get(mer, 0)
             repeat_kmer_hashmap[mer] = repeat_count + (title_repeated_count[mer] - 1)
-
 
