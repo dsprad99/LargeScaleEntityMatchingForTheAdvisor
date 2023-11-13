@@ -14,7 +14,7 @@ def main3():
 
     repeat_kmer_hashmap = {}
 
-    arr_builder = lambda current_paper : mer_builder(current_paper.title, 3, False, True)
+    arr_builder = lambda current_paper : mer_builder(current_paper.title, 3, False, False)
 
 
     dblp_callbacks = [

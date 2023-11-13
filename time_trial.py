@@ -1,7 +1,7 @@
 import random
 from Callback import print_paper
 from Parse import Paper, parse_DBLP_file, parse_MAG_file
-from Kmer import query_selector,mer_hashtable, histogramQuery,histogramMers,query_selector_MAG_test, remove_top_k_mers,top_candidates
+from Kmer import query_selector,mer_hashtable, histogramQuery,histogramMers,query_selector_MAG_test, remove_top_k_mers,top_candidates, mer_builder
 import os, psutil
 process = psutil.Process()
 import time
@@ -15,6 +15,7 @@ def test_kmer_parameters(k, num_removed_kmers, paper_limit,chosen_probability):
     file_path_dblp = 'dblp.xml.gz'
     all_trial_results = []
     #iterate over all our different k mer values we want to try
+    arr_builder = lambda current_paper : mer_builder(current_paper.title, 3, False, False)
         
     for k_value in k:
         #create DBLP hashmap
@@ -25,7 +26,7 @@ def test_kmer_parameters(k, num_removed_kmers, paper_limit,chosen_probability):
         
         #build the mer_hash table for DBLP
         dblp_callbacks = [
-            lambda current_paper: mer_hashtable(current_paper, k_value, dblp_mer_hash, lower_case=False),
+            lambda current_paper: mer_hashtable(current_paper, dblp_mer_hash, arr_builder),
             lambda current_paper: random_sample_papers(current_paper.title, current_paper.paper_id,chosen_probability)
             #lambda current_paper: random_sample_papers(current_paper.title if current_paper is not None else None, current_paper.paper_id if current_paper is not None else None, chosen_probability)
         ]
@@ -39,13 +40,14 @@ def test_kmer_parameters(k, num_removed_kmers, paper_limit,chosen_probability):
 
         remove_k_mer_sum = 0
 
+
         for j in range(len(num_removed_kmers)):
 
             remove_k_mer_sum += num_removed_kmers[j]
-
-            print(f"Removed top {remove_k_mer_sum}")
         
             dblp_mer_hash = remove_top_k_mers(dblp_mer_hash,num_removed_kmers[j])
+
+            print(f"Removed top {remove_k_mer_sum}")
             
             #record results for each trial so that we can append them later to our results array that keeps track of each trial
 
@@ -56,7 +58,7 @@ def test_kmer_parameters(k, num_removed_kmers, paper_limit,chosen_probability):
             for i in range(len(selected_dblp_papers)):
                 start_time_query = time.time()
                 #return back a hashmap of counts for each paper
-                query_result = query_selector(selected_dblp_papers[i][1], dblp_mer_hash, k_value)
+                query_result = query_selector(selected_dblp_papers[i][1], dblp_mer_hash, mer_builder(selected_dblp_papers[i][1], 3, False, False))
                 end_time_query = time.time()
 
                 query_time = end_time_query - start_time_query
@@ -95,7 +97,7 @@ def test_kmer_parameters(k, num_removed_kmers, paper_limit,chosen_probability):
                 else:
                     trial_results.append((k_value, remove_k_mer_sum, paper_limit, selected_dblp_papers[i][1], selected_dblp_papers[i][0], best_match_id, second_best_match_id, query_time, ratio, hashmap_build_time,'-'))
                 
-            
+            print(f"Query completed for removing top {remove_k_mer_sum} mers")
 
             all_trial_results.extend(trial_results)
 
@@ -119,9 +121,9 @@ def random_sample_papers(paper_title,paper_id,chosen_probability):
 
 
 
-def csv_writer(results):
+def csv_writer(results, file_name):
     # Write results to a CSV file
-    with open('total_query_trial.csv', 'w', newline='') as csvfile:
+    with open(file_name, 'w', newline='') as csvfile:
         fieldnames = ['k', 'num_removed_kmers', 'paper_limit', 'paper_title', 'paper_id', 'best_candidate_id', '2nd_best_candidate_id', 'query_time', 'ratio', 'hashmap_build_time','average_success_rate']
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()
@@ -141,4 +143,7 @@ def csv_writer(results):
                 'average_success_rate': result[10]
             })
         
+
+
+
         

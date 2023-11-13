@@ -1,6 +1,6 @@
 from Callback import print_paper
 from Parse import Paper, parse_DBLP_file, parse_MAG_file
-from Kmer import query_selector,mer_hashtable, histogramQuery,histogramMers,query_selector_MAG_test, remove_top_k_mers
+from Kmer import query_selector,mer_hashtable, histogramQuery,histogramMers,query_selector_MAG_test, remove_top_k_mers, mer_builder
 import os, psutil
 process = psutil.Process()
 import time
@@ -16,42 +16,42 @@ def main():
     dblp_mer_hash = {}  
     mag_mer_hash = {}
 
+    arr_builder = lambda current_paper : mer_builder(current_paper.title, 3, False, False)
+    
+
     dblp_callbacks = [
         #lambda current_paper: print_paper(current_paper),
-        lambda current_paper: mer_hashtable(current_paper, 3, dblp_mer_hash,lower_case = False)
+        lambda current_paper: mer_hashtable(current_paper, dblp_mer_hash,arr_builder)
     ]
-    parse_DBLP_file(file_path_dblp, dblp_callbacks,6000000)
-    print("DBLP hash table built")
+    num_papers = parse_DBLP_file(file_path_dblp, dblp_callbacks,1000000)
+    #print(len(dblp_mer_hash.keys()))
+    #print("Number of papers in DBLP",num_papers)
 
-    mag_callbacks = [
-        #lambda current_paper: print_paper(current_paper),
-        #lambda current_paper: mer_hashtable(current_paper, 3, mag_mer_hash,lower_case = False),
-        lambda current_paper: query_selector_MAG_test(current_paper.title, remove_top_k_mers(dblp_mer_hash , 20), 3)
-    ]
-    start = time.time()
-    parse_MAG_file(file_path_MAG, mag_callbacks,10)
-    end = time.time()
-    print(end - start)
+
+    #dblp_mer_hash = remove_top_k_mers(dblp_mer_hash , 1000)
+    #start = time.time()
+    #parse_MAG_file(file_path_MAG, mag_callbacks,10)
+    #end = time.time()
+    #print(end - start)
 
     #memoryatend = process.memory_info().rss 
     #print(memoryatend/1024/1024)
     #print((memoryatend-memoryatstart)/1024/1024)
 
-    #query_count1 = query_selector("A Combined Symbolic-Empirical Apprach for the Automatic Translation of Compounds", dblp_mer_hash, 3)
-    #query_count2 = query_selector("Definite Resolution over Constraint Languages", dblp_mer_hash, 3)
-    #query_count3 = query_selector("LILOG-DB: Database Support for Knowledge-Based Systems", dblp_mer_hash, 3)
-    #start = time.time()
-    #query_selector("annotated bibliography on biblical interpretation", mag_mer_hash, 3)
+    query_count1 = query_selector("Analyzing scheduling with transient failures", dblp_mer_hash,mer_builder("Analyzing scheduling with transient failures", 3, False, False))
+    print (query_count1)
+
     #end = time.time()
     #print(end - start)
 
-    #histogramQuery(query_count1, filename="query_histogram_DBLP_1.png")
+
+    #histogramQuery(query_count1, filename="query_histogram_DBLP_from_MAG_removing_50_kmers.png")
     #histogramQuery(query_count1)
     #histogramQuery(query_count2, filename="query_histogram_DBLP_2.png")
     #histogramQuery(query_count2)
     #histogramQuery(query_count3, filename="query_histogram_DBLP_3.png")
 
-    #histogramMers(dblp_mer_hash,5001,5201, filename="removing_most_frequent_5000_mer_DBLP_histogram.png")
+    #histogramMers(dblp_mer_hash,0,200, filename="most_frequent_million_mers.png")
     #histogramMers(mag_mer_hash,1,20, filename="most_frequent_mer_MAG_histogram.png")
 
 

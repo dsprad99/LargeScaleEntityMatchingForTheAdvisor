@@ -12,7 +12,7 @@ import sys
 #an ID for every mer that exists
 #therefore using the mer_hash it is able to identify the frequency of 
 #mers associated with an ID number to find the best candidate
-def query_selector(title, mer_hash, x, mer_builder_callback):
+def query_selector(title, mer_hash, mer_builder_callback):
 
     #count = {}
     #for each kmer in querytitle
@@ -111,8 +111,8 @@ def mer_builder(paper_title,x, lower_case = False, remove_spaces = False):
 #allows us to take in a paper object along with the k-mer represented by x
 #in this instance and will build the mer_hash table which will have an ID or 
 #ID's associated for every mer
-def mer_hashtable(paper, x, mer_hash, lower_case, mer_builder_callback):
-    mer_array = mer_builder_callback
+def mer_hashtable(paper, mer_hash, mer_builder_callback):
+    mer_array = mer_builder_callback(paper)
     
     for arr in mer_array:
         if arr not in mer_hash:
@@ -122,16 +122,17 @@ def mer_hashtable(paper, x, mer_hash, lower_case, mer_builder_callback):
     
     
 
-
 def remove_top_k_mers(mer_hash, k):
         # Sort k-mers by frequency in descending order
         sorted_k_mers = sorted(mer_hash.items(), key=lambda x: len(x[1]), reverse=True)
 
         # Get the top k k-mers
         top_k_mers = sorted_k_mers[:k]
+        print(top_k_mers)
 
         # Remove the top k k-mers from the hash table
-        for k_mer in top_k_mers:
+        print(mer_hash)
+        for k_mer, _ in top_k_mers:
             del mer_hash[k_mer]
 
         return mer_hash
@@ -161,8 +162,8 @@ def histogramMers(mer_hash,start_num,end_num, filename=None):
     # Sort k-mers by frequency in descending order
     sorted_k_mers = sorted(mer_hash.items(), key=lambda x: len(x[1]), reverse=True)
     
-    # Exclude the top 20 most frequent K-mers
-    top_k_mers = sorted_k_mers[start_num:end_num]  # Change the slice as needed
+    # Include the top start_num to end_num K-mers
+    top_k_mers = sorted_k_mers[start_num:end_num]  
 
     if not top_k_mers:
         print("No k-mers found in the hash.")
@@ -175,7 +176,7 @@ def histogramMers(mer_hash,start_num,end_num, filename=None):
     plt.xticks(range(len(k_mer_labels)), k_mer_labels, rotation=90, fontsize=4)
     plt.xlabel("K-mer")
     plt.ylabel("Frequency with hashmap")
-    plt.title("Top 200 K-mers Histogram")
+    plt.title("Top 200 3-Mer Histogram - 1,000,000 Papers")
     plt.tight_layout()
 
     if filename:
@@ -241,7 +242,7 @@ def histogramQuery(count_dict, filename= None):
 
 def repeating_kmer_study(repeat_kmer_hashmap, current_paper, mer_builder_callback):
     title_repeated_count = {}
-    arr = mer_builder_callback(current_paper)
+    arr = mer_builder_callback()
 
     for kmer in arr:
         if kmer in title_repeated_count:

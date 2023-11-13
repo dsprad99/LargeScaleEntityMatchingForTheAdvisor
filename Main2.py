@@ -13,12 +13,12 @@ def main2():
     #have to rebuilt every single time now we will just subtract
     num_removed_kmers = [0,20,30,50,400,500,4000]
     #limit for the amount of DBLP papers we want to add to our hashmap
-    paper_limit = 30000000000
+    paper_limit = 3000
     
 
-    chosen_probability= .04
+    chosen_probability= .5
 
-    csv_writer(test_kmer_parameters(k_values, num_removed_kmers, paper_limit, chosen_probability))
+    csv_writer(test_kmer_parameters(k_values, num_removed_kmers, paper_limit, chosen_probability),'abc_total_query_trial.csv')
 
 if __name__ == "__main__":
     main2()
