@@ -7,6 +7,9 @@ process = psutil.Process()
 import time
 import csv
 from collections import defaultdict
+import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
 
 
 def test_kmer_parameters(k, num_removed_kmers, paper_limit,chosen_probability):
@@ -51,10 +54,10 @@ def test_kmer_parameters(k, num_removed_kmers, paper_limit,chosen_probability):
             
             #record results for each trial so that we can append them later to our results array that keeps track of each trial
 
-            #Note: Problem when looping through due to 
             trial_results = []
             successful_candidates = 0
             total_random_papers = 0
+            total_query_time = 0
             for i in range(len(selected_dblp_papers)):
                 start_time_query = time.time()
                 #return back a hashmap of counts for each paper
@@ -62,6 +65,7 @@ def test_kmer_parameters(k, num_removed_kmers, paper_limit,chosen_probability):
                 end_time_query = time.time()
 
                 query_time = end_time_query - start_time_query
+                total_query_time += query_time
 
                 #gives us our top two papers back
                 top_matches = top_candidates(query_result, 2)
@@ -93,9 +97,9 @@ def test_kmer_parameters(k, num_removed_kmers, paper_limit,chosen_probability):
                     #print(successful_candidates, "-", total_random_papers)
                     average_success_rate = (successful_candidates / total_random_papers)*100
                     #print(average_success_rate)
-                    trial_results.append((k_value, remove_k_mer_sum, paper_limit, selected_dblp_papers[i][1], selected_dblp_papers[i][0], best_match_id, second_best_match_id, query_time, ratio, hashmap_build_time, average_success_rate))           
+                    trial_results.append((k_value, remove_k_mer_sum, paper_limit, selected_dblp_papers[i][1], selected_dblp_papers[i][0], best_match_id, second_best_match_id, query_time, ratio, hashmap_build_time, average_success_rate,(total_query_time/len(selected_dblp_papers))))           
                 else:
-                    trial_results.append((k_value, remove_k_mer_sum, paper_limit, selected_dblp_papers[i][1], selected_dblp_papers[i][0], best_match_id, second_best_match_id, query_time, ratio, hashmap_build_time,'-'))
+                    trial_results.append((k_value, remove_k_mer_sum, paper_limit, selected_dblp_papers[i][1], selected_dblp_papers[i][0], best_match_id, second_best_match_id, query_time, ratio, hashmap_build_time,'-','-'))
                 
             print(f"Query completed for removing top {remove_k_mer_sum} mers")
 
@@ -124,7 +128,7 @@ def random_sample_papers(paper_title,paper_id,chosen_probability):
 def csv_writer(results, file_name):
     # Write results to a CSV file
     with open(file_name, 'w', newline='') as csvfile:
-        fieldnames = ['k', 'num_removed_kmers', 'paper_limit', 'paper_title', 'paper_id', 'best_candidate_id', '2nd_best_candidate_id', 'query_time', 'ratio', 'hashmap_build_time','average_success_rate']
+        fieldnames = ['k', 'num_removed_kmers', 'paper_limit', 'paper_title', 'paper_id', 'best_candidate_id', '2nd_best_candidate_id', 'query_time', 'ratio', 'hashmap_build_time','average_success_rate','average_query_time']
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()
 
@@ -140,9 +144,65 @@ def csv_writer(results, file_name):
                 'query_time': result[7],
                 'ratio': result[8],
                 'hashmap_build_time': result[9],
-                'average_success_rate': result[10]
+                'average_success_rate': result[10],
+                'average_query_time': result[11]
             })
         
+
+def average_histogram(fileName):
+        df = pd.read_csv(fileName)
+
+        # Convert '-' to NaN for proper numerical computations and filtering
+        df['average_success_rate'] = pd.to_numeric(df['average_success_rate'], errors='coerce')
+        df['average_query_time'] = pd.to_numeric(df['average_query_time'], errors='coerce')
+
+        # Drop rows where either 'average_success_rate' or 'average_query_time' is NaN
+        df.dropna(subset=['average_success_rate', 'average_query_time'], inplace=True)
+
+        # Create a new column combining 'k' and 'num_removed_kmers'
+        df['k_num_combination'] = df['k'].astype(str) + "_" + df['num_removed_kmers'].astype(str)
+
+        # Plotting
+        fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(15, 16))
+
+        # Setting the positions for the bars
+        ind = np.arange(len(df['k_num_combination'].unique()))
+
+        # Width of the bars
+        width = 0.35
+
+        # Plot for Average Success Rate
+        bars1 = ax1.bar(ind, df['average_success_rate'], width, color='blue', label='Average Success Rate')
+        ax1.set_xlabel('k value and Number of Removed k-mers')
+        ax1.set_ylabel('Average Success Rate')
+        ax1.set_title('Histogram of Average Success Rate by k value and Num Removed k-mers')
+        ax1.set_xticks(ind)
+        ax1.set_xticklabels(df['k_num_combination'].unique(), rotation=90)
+        ax1.legend()
+
+        # Adding the text on the top of each bar in ax1
+        for bar in bars1:
+            yval = bar.get_height()
+            ax1.text(bar.get_x() + bar.get_width()/2.0, yval, round(yval, 2), va='bottom', ha='center')
+
+        # Plot for Average Query Time
+        bars2 = ax2.bar(ind, df['average_query_time'], width, color='green', label='Average Query Time')
+        ax2.set_xlabel('k value and Number of Removed k-mers')
+        ax2.set_ylabel('Average Query Time')
+        ax2.set_title('Histogram of Average Query Time by k value and Num Removed k-mers')
+        ax2.set_xticks(ind)
+        ax2.set_xticklabels(df['k_num_combination'].unique(), rotation=90)
+        ax2.legend()
+
+        # Adding the text on the top of each bar in ax2 with six decimal places
+        for bar in bars2:
+            yval = bar.get_height()
+            label = "{:.10f}".format(yval)
+            ax2.text(bar.get_x() + bar.get_width()/2.0, yval, label, va='bottom', ha='center')
+
+        plt.tight_layout()
+        plt.subplots_adjust(hspace=0.5) 
+        plt.show()
 
 
 

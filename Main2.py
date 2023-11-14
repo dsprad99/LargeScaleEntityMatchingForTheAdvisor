@@ -1,4 +1,7 @@
-from time_trial import test_kmer_parameters, csv_writer
+from time_trial import test_kmer_parameters, csv_writer, average_histogram
+import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
 
 def main2():
     #k values we want to try out
@@ -19,6 +22,10 @@ def main2():
     chosen_probability= .5
 
     csv_writer(test_kmer_parameters(k_values, num_removed_kmers, paper_limit, chosen_probability),'abc_total_query_trial.csv')
+
+    average_histogram('abc_total_query_trial.csv')
+
+
 
 if __name__ == "__main__":
     main2()
