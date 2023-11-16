@@ -16,14 +16,16 @@ def main2():
     #have to rebuilt every single time now we will just subtract
     num_removed_kmers = [0,20,30,50,400,500,4000]
     #limit for the amount of DBLP papers we want to add to our hashmap
-    paper_limit = 3000
+    paper_limit = 1000000
     
-
-    chosen_probability= .5
+    #.05
+    chosen_probability= .05
 
     csv_writer(test_kmer_parameters(k_values, num_removed_kmers, paper_limit, chosen_probability),'abc_total_query_trial.csv')
 
-    average_histogram('abc_total_query_trial.csv', True, False)
+    #paramters for if you want average_accuracy or average_query_time or both
+    #also an optional paramter to pass in the last value as a string of a filename to print out the histogram
+    average_histogram('abc_total_query_trial.csv', True, True,"average_accuracy_and_query_time_1000000.png")
 
 
 

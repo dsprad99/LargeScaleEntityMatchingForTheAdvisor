@@ -149,7 +149,7 @@ def csv_writer(results, file_name):
             })
         
 
-def average_histogram(fileName, average_accuracy_boolean, average_query_time_boolean):
+def average_histogram(fileName, average_accuracy_boolean, average_query_time_boolean, print_file_name = None):
         df = pd.read_csv(fileName)
 
         # Convert '-' to NaN for proper numerical computations and filtering
@@ -164,13 +164,13 @@ def average_histogram(fileName, average_accuracy_boolean, average_query_time_boo
 
         # Plotting
         if(average_accuracy_boolean and average_query_time_boolean):
-            fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(15, 16))
+            fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(18, 18))
 
         elif(average_accuracy_boolean):
-            fig, (ax1) = plt.subplots(1, 1, figsize=(15, 16))
+            fig, (ax1) = plt.subplots(1, 1, figsize=(18, 18))
 
         elif(average_query_time_boolean):
-            fig, (ax2) = plt.subplots(1, 1, figsize=(15, 16))
+            fig, (ax2) = plt.subplots(1, 1, figsize=(18, 18))
 
         
 
@@ -195,7 +195,9 @@ def average_histogram(fileName, average_accuracy_boolean, average_query_time_boo
                 yval = bar.get_height()
                 ax1.text(bar.get_x() + bar.get_width()/2.0, yval, round(yval, 2), va='bottom', ha='center')
 
-            if(average_query_time_boolean==False):
+            if(print_file_name and average_query_time_boolean==False):
+                plt.savefig(print_file_name)
+            elif(average_query_time_boolean==False):
                 plt.show()
 
         if average_query_time_boolean:
@@ -211,13 +213,20 @@ def average_histogram(fileName, average_accuracy_boolean, average_query_time_boo
             # Adding the text on the top of each bar in ax2 with six decimal places
             for bar in bars2:
                 yval = bar.get_height()
-                label = "{:.10f}".format(yval)
+                label = "{:.5f}".format(yval)
                 ax2.text(bar.get_x() + bar.get_width()/2.0, yval, label, va='bottom', ha='center')
 
-            if(average_accuracy_boolean==False):
+            if(print_file_name and average_accuracy_boolean==False):
+                plt.savefig(print_file_name)
+            elif(average_accuracy_boolean==False):
                 plt.show()
 
-        if(average_query_time_boolean and average_accuracy_boolean):
+        
+        if(print_file_name and average_query_time_boolean and average_accuracy_boolean):
+            plt.tight_layout()
+            plt.subplots_adjust(hspace=0.5) 
+            plt.savefig(print_file_name)
+        elif(average_query_time_boolean and average_accuracy_boolean):
             plt.tight_layout()
             plt.subplots_adjust(hspace=0.5) 
             plt.show()
