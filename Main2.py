@@ -23,7 +23,7 @@ def main2():
 
     csv_writer(test_kmer_parameters(k_values, num_removed_kmers, paper_limit, chosen_probability),'abc_total_query_trial.csv')
 
-    average_histogram('abc_total_query_trial.csv')
+    average_histogram('abc_total_query_trial.csv', True, False)
 
 
 

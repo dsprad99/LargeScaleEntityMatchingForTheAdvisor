@@ -149,7 +149,7 @@ def csv_writer(results, file_name):
             })
         
 
-def average_histogram(fileName):
+def average_histogram(fileName, average_accuracy_boolean, average_query_time_boolean):
         df = pd.read_csv(fileName)
 
         # Convert '-' to NaN for proper numerical computations and filtering
@@ -163,7 +163,16 @@ def average_histogram(fileName):
         df['k_num_combination'] = df['k'].astype(str) + "_" + df['num_removed_kmers'].astype(str)
 
         # Plotting
-        fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(15, 16))
+        if(average_accuracy_boolean and average_query_time_boolean):
+            fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(15, 16))
+
+        elif(average_accuracy_boolean):
+            fig, (ax1) = plt.subplots(1, 1, figsize=(15, 16))
+
+        elif(average_query_time_boolean):
+            fig, (ax2) = plt.subplots(1, 1, figsize=(15, 16))
+
+        
 
         # Setting the positions for the bars
         ind = np.arange(len(df['k_num_combination'].unique()))
@@ -171,38 +180,47 @@ def average_histogram(fileName):
         # Width of the bars
         width = 0.35
 
-        # Plot for Average Success Rate
-        bars1 = ax1.bar(ind, df['average_success_rate'], width, color='blue', label='Average Success Rate')
-        ax1.set_xlabel('k value and Number of Removed k-mers')
-        ax1.set_ylabel('Average Success Rate')
-        ax1.set_title('Histogram of Average Success Rate by k value and Num Removed k-mers')
-        ax1.set_xticks(ind)
-        ax1.set_xticklabels(df['k_num_combination'].unique(), rotation=90)
-        ax1.legend()
+        if average_accuracy_boolean:
+            # Plot for Average Success Rate
+            bars1 = ax1.bar(ind, df['average_success_rate'], width, color='blue', label='Average Success Rate')
+            ax1.set_xlabel('k value and Number of Removed k-mers')
+            ax1.set_ylabel('Average Success Rate')
+            ax1.set_title('Histogram of Average Success Rate by k value and Num Removed k-mers')
+            ax1.set_xticks(ind)
+            ax1.set_xticklabels(df['k_num_combination'].unique(), rotation=90)
+            ax1.legend()
 
-        # Adding the text on the top of each bar in ax1
-        for bar in bars1:
-            yval = bar.get_height()
-            ax1.text(bar.get_x() + bar.get_width()/2.0, yval, round(yval, 2), va='bottom', ha='center')
+            # Adding the text on the top of each bar in ax1
+            for bar in bars1:
+                yval = bar.get_height()
+                ax1.text(bar.get_x() + bar.get_width()/2.0, yval, round(yval, 2), va='bottom', ha='center')
 
-        # Plot for Average Query Time
-        bars2 = ax2.bar(ind, df['average_query_time'], width, color='green', label='Average Query Time')
-        ax2.set_xlabel('k value and Number of Removed k-mers')
-        ax2.set_ylabel('Average Query Time')
-        ax2.set_title('Histogram of Average Query Time by k value and Num Removed k-mers')
-        ax2.set_xticks(ind)
-        ax2.set_xticklabels(df['k_num_combination'].unique(), rotation=90)
-        ax2.legend()
+            if(average_query_time_boolean==False):
+                plt.show()
 
-        # Adding the text on the top of each bar in ax2 with six decimal places
-        for bar in bars2:
-            yval = bar.get_height()
-            label = "{:.10f}".format(yval)
-            ax2.text(bar.get_x() + bar.get_width()/2.0, yval, label, va='bottom', ha='center')
+        if average_query_time_boolean:
+            # Plot for Average Query Time
+            bars2 = ax2.bar(ind, df['average_query_time'], width, color='green', label='Average Query Time')
+            ax2.set_xlabel('k value and Number of Removed k-mers')
+            ax2.set_ylabel('Average Query Time')
+            ax2.set_title('Histogram of Average Query Time by k value and Num Removed k-mers')
+            ax2.set_xticks(ind)
+            ax2.set_xticklabels(df['k_num_combination'].unique(), rotation=90)
+            ax2.legend()
 
-        plt.tight_layout()
-        plt.subplots_adjust(hspace=0.5) 
-        plt.show()
+            # Adding the text on the top of each bar in ax2 with six decimal places
+            for bar in bars2:
+                yval = bar.get_height()
+                label = "{:.10f}".format(yval)
+                ax2.text(bar.get_x() + bar.get_width()/2.0, yval, label, va='bottom', ha='center')
+
+            if(average_accuracy_boolean==False):
+                plt.show()
+
+        if(average_query_time_boolean and average_accuracy_boolean):
+            plt.tight_layout()
+            plt.subplots_adjust(hspace=0.5) 
+            plt.show()
 
 
 
