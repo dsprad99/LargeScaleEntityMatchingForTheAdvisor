@@ -1,18 +1,16 @@
 import random
-from Callback import print_paper
-from Parse import Paper, parse_DBLP_file, parse_MAG_file
-from Kmer import query_selector,mer_hashtable, histogramQuery,histogramMers,query_selector_MAG_test, remove_top_k_mers,top_candidates, mer_builder
+from Parse import parse_DBLP_file
+from Kmer import query_selector,mer_hashtable, remove_top_k_mers, mer_builder,top_candidates_levenshtein, paper_details_population,repeating_kmer_study,filter_and_remove_kmers
 import os, psutil
 process = psutil.Process()
 import time
 import csv
-from collections import defaultdict
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 
 
-def test_kmer_parameters(k, num_removed_kmers, paper_limit,chosen_probability):
+def test_kmer_parameters(k, num_removed_kmers, paper_limit,chosen_probability,levenshtein_candidates,repeating_mers_remove):
     #record results in the list to add to our csv file
     results = []
     file_path_dblp = 'dblp.xml.gz'
@@ -26,11 +24,19 @@ def test_kmer_parameters(k, num_removed_kmers, paper_limit,chosen_probability):
 
         global selected_dblp_papers
         selected_dblp_papers = []
+
+        #used to map paper IDs to there title
+        paper_details = {}
+
+        #used to create a hashmap of kmer repeating frequency
+        repeat_kmer_hashmap = {}
         
         #build the mer_hash table for DBLP
         dblp_callbacks = [
             lambda current_paper: mer_hashtable(current_paper, dblp_mer_hash, arr_builder),
-            lambda current_paper: random_sample_papers(current_paper.title, current_paper.paper_id,chosen_probability)
+            lambda current_paper: random_sample_papers(current_paper.title, current_paper.paper_id,chosen_probability),
+            lambda current_paper: paper_details_population(current_paper.paper_id, current_paper.title, paper_details),
+            lambda current_paper: repeating_kmer_study(current_paper,repeat_kmer_hashmap,arr_builder)
             #lambda current_paper: random_sample_papers(current_paper.title if current_paper is not None else None, current_paper.paper_id if current_paper is not None else None, chosen_probability)
         ]
 
@@ -42,6 +48,7 @@ def test_kmer_parameters(k, num_removed_kmers, paper_limit,chosen_probability):
 
 
         remove_k_mer_sum = 0
+        dblp_mer_hash = filter_and_remove_kmers(repeat_kmer_hashmap,dblp_mer_hash,repeating_mers_remove)
 
 
         for j in range(len(num_removed_kmers)):
@@ -62,13 +69,17 @@ def test_kmer_parameters(k, num_removed_kmers, paper_limit,chosen_probability):
                 start_time_query = time.time()
                 #return back a hashmap of counts for each paper
                 query_result = query_selector(selected_dblp_papers[i][1], dblp_mer_hash, mer_builder(selected_dblp_papers[i][1], 3, False, False))
-                end_time_query = time.time()
+                
 
+                #gives us our top two papers back
+                #top_matches = top_candidates(query_result, 2)
+
+                top_matches = top_candidates_levenshtein(query_result, levenshtein_candidates,selected_dblp_papers[i][1], paper_details)
+
+                end_time_query = time.time()
                 query_time = end_time_query - start_time_query
                 total_query_time += query_time
 
-                #gives us our top two papers back
-                top_matches = top_candidates(query_result, 2)
 
                 #testing for results from top_matches
                 #for i in range(len(top_matches)):
@@ -79,13 +90,17 @@ def test_kmer_parameters(k, num_removed_kmers, paper_limit,chosen_probability):
                     ratio = top_matches[0][1], "-", top_matches[1][1]
                     best_match_id = top_matches[0][0]
                     second_best_match_id = top_matches[1][0]
+                    best_match_title = top_matches[0][3]
+                    second_best_match_title = top_matches[1][3]
+                    
                 else:
                     ratio = 0
                     best_match_id = "None"
                     second_best_match_id = 0
 
                 try:
-                    if selected_dblp_papers[i][0] == best_match_id:
+                    #if titles match this is considered a success
+                    if selected_dblp_papers[i][1] == best_match_title:
                         successful_candidates += 1
                         #print("Success")
                     total_random_papers += 1
@@ -99,8 +114,11 @@ def test_kmer_parameters(k, num_removed_kmers, paper_limit,chosen_probability):
                     #print(average_success_rate)
                     trial_results.append((k_value, remove_k_mer_sum, paper_limit, selected_dblp_papers[i][1], selected_dblp_papers[i][0], best_match_id, second_best_match_id, query_time, ratio, hashmap_build_time, average_success_rate,(total_query_time/len(selected_dblp_papers))))           
                 else:
-                    trial_results.append((k_value, remove_k_mer_sum, paper_limit, selected_dblp_papers[i][1], selected_dblp_papers[i][0], best_match_id, second_best_match_id, query_time, ratio, hashmap_build_time,'-','-'))
-                
+                    if(selected_dblp_papers[i][1] == best_match_title):
+                        trial_results.append((k_value, remove_k_mer_sum, paper_limit, selected_dblp_papers[i][1], selected_dblp_papers[i][0], best_match_id, second_best_match_id, query_time, ratio, hashmap_build_time,'Match','-'))
+                    else:
+                        trial_results.append((k_value, remove_k_mer_sum, paper_limit, selected_dblp_papers[i][1], selected_dblp_papers[i][0], best_match_id, second_best_match_id, query_time, ratio, hashmap_build_time,'NOT MATCH','-'))
+
             print(f"Query completed for removing top {remove_k_mer_sum} mers")
 
             all_trial_results.extend(trial_results)
@@ -185,7 +203,7 @@ def average_histogram(fileName, average_accuracy_boolean, average_query_time_boo
             bars1 = ax1.bar(ind, df['average_success_rate'], width, color='blue', label='Average Success Rate')
             ax1.set_xlabel('k value and Number of Removed k-mers')
             ax1.set_ylabel('Average Success Rate')
-            ax1.set_title('Histogram of Average Success Rate by k value and Num Removed k-mers')
+            ax1.set_title('Histogram of Average Success Rate by k value')
             ax1.set_xticks(ind)
             ax1.set_xticklabels(df['k_num_combination'].unique(), rotation=90)
             ax1.legend()

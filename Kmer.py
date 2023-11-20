@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import sys
+from Levenshtein import distance,ratio
 
 
 #*Documentation* if when developing the mer_hash table and you 
@@ -67,6 +68,11 @@ def query_selector_MAG_test(title, mer_hash, x, mer_builder_callback):
     return count
 
 
+def paper_details_population(id, title, paper_dictionary):
+    paper_dictionary[id] = title
+
+
+
 #mer_builder allows for us to build an array of 
 #k mers in a given string
 #example
@@ -128,13 +134,10 @@ def remove_top_k_mers(mer_hash, k):
 
         # Get the top k k-mers
         top_k_mers = sorted_k_mers[:k]
-        print(top_k_mers)
 
         # Remove the top k k-mers from the hash table
-        print(mer_hash)
         for k_mer, _ in top_k_mers:
             del mer_hash[k_mer]
-
         return mer_hash
 
 
@@ -151,7 +154,25 @@ def top_candidates(query_dataset,number_of_candidates):
         individual_candidate = [paper_id, frequency]
         candidates.append(individual_candidate)
         
-    return candidates    
+    return candidates  
+
+
+#returns our top candidates from a hashmap of IDs and then goes through a levenshtein algorithm to find the true best cadidate
+def top_candidates_levenshtein(query_dataset,number_of_candidates, query_title, paper_details):
+    candidates = []
+
+    # Sort matches by frequency
+    sorted_matches = sorted(query_dataset.items(), key=lambda x: x[1], reverse=True)
+
+    for i, (paper_id, frequency) in enumerate(sorted_matches[:number_of_candidates], 1):
+        candidate_title = paper_details.get(paper_id)
+        rat = ratio(query_title, candidate_title)
+        candidates.append((paper_id, frequency, rat, candidate_title))
+
+    # Sort candidates by the Levenshtein ratio
+    candidates.sort(key=lambda x: x[2], reverse=True)
+
+    return candidates
 
 
 
@@ -240,9 +261,9 @@ def histogramQuery(count_dict, filename= None):
 
 
 
-def repeating_kmer_study(repeat_kmer_hashmap, current_paper, mer_builder_callback):
+def repeating_kmer_study(paper,repeat_kmer_hashmap, mer_builder_callback):
     title_repeated_count = {}
-    arr = mer_builder_callback()
+    arr = mer_builder_callback(paper)
 
     for kmer in arr:
         if kmer in title_repeated_count:
@@ -257,3 +278,18 @@ def repeating_kmer_study(repeat_kmer_hashmap, current_paper, mer_builder_callbac
             repeat_count = repeat_kmer_hashmap.get(mer, 0)
             repeat_kmer_hashmap[mer] = repeat_count + (title_repeated_count[mer] - 1)
 
+
+
+def filter_and_remove_kmers(repeat_kmer_hashmap,dblp_hash_map, k):
+
+    # Sort k-mers by their count in descending order
+    sorted_k_mers = sorted(repeat_kmer_hashmap.items(), key=lambda x: x[1], reverse=True)
+    # Get the top k k-mers
+    top_k_mers = sorted_k_mers[:k]
+
+    # Remove the top k k-mers from the hash table
+    for k_mer, _ in top_k_mers:
+        if k_mer in dblp_hash_map:
+            del dblp_hash_map[k_mer]
+
+    return dblp_hash_map
