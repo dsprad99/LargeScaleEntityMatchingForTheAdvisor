@@ -21,6 +21,7 @@ def parse_DBLP_file(file_path,callback,count_to):
         count_line = 0
         prev_line = ""
         pap = []
+        i = 0
         current_paper = None
         #help us keep track of if we are inside a paper currently
         inside_paper = False
@@ -40,10 +41,8 @@ def parse_DBLP_file(file_path,callback,count_to):
                         fnction(current_paper)
                     current_paper = None
 
-                else:
-                    print("Paper is not an Object")
-                    for i in range(len(pap)):
-                       print(pap[i])
+                    i+=1
+
             
             #check for an opening tag to make a new Paper object
             if '<article' in current_line or '<inproceedings' in current_line or '<incollection' in current_line or '<book' in current_line:
@@ -81,6 +80,8 @@ def parse_DBLP_file(file_path,callback,count_to):
                 prev_line = current_line
                 count_line += 1
 
+    return i
+
 
 def parse_MAG_file(file_path,callback, count_to):
     file_path = 'Papers.txt.gz'
@@ -108,5 +109,6 @@ def parse_MAG_file(file_path,callback, count_to):
             current_paper.file_source = "MAG"
             for fnction in callback:
                     fnction(current_paper)
+
 
 
