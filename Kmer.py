@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import sys
 from Levenshtein import distance,ratio
-
+from numba import jit
 
 #*Documentation* if when developing the mer_hash table and you 
 #pass that you do want it to generate characters in lowercase 

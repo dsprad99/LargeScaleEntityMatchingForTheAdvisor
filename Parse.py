@@ -111,4 +111,3 @@ def parse_MAG_file(file_path,callback, count_to):
                     fnction(current_paper)
 
 
-
