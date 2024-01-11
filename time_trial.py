@@ -10,121 +10,89 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-def test_kmer_parameters(k, num_removed_kmers, paper_limit,chosen_probability,levenshtein_candidates,repeating_mers_remove):
-    #record results in the list to add to our csv file
-    results = []
-    file_path_dblp = 'dblp.xml.gz'
-    all_trial_results = []
-    #iterate over all our different k mer values we want to try
+def build_dblp_hash_table(k, paper_limit, chosen_probability, repeating_mers_remove):
+    # create DBLP hashmap
+    dblp_mer_hash = {}
+    global selected_dblp_papers
+    selected_dblp_papers = []
+    # used to map paper IDs to their title
+    paper_details = {}
+    # used to create a hashmap of kmer repeating frequency
+    repeat_kmer_hashmap = {}
+    
     arr_builder = lambda current_paper : mer_builder(current_paper.title, 3, False, False)
-        
-    for k_value in k:
-        #create DBLP hashmap
-        dblp_mer_hash = {}
 
-        global selected_dblp_papers
-        selected_dblp_papers = []
+    # build the mer_hash table for DBLP
+    dblp_callbacks = [
+        lambda current_paper: mer_hashtable(current_paper, dblp_mer_hash, arr_builder),
+        lambda current_paper: random_sample_papers(current_paper.title, current_paper.paper_id, chosen_probability),
+        lambda current_paper: paper_details_population(current_paper.paper_id, current_paper.title, paper_details),
+        lambda current_paper: repeating_kmer_study(current_paper, repeat_kmer_hashmap, arr_builder)
+    ]
 
-        #used to map paper IDs to there title
-        paper_details = {}
+    start_time_build_hashmap = time.time()
+    file_path_dblp = 'dblp.xml.gz'
+    parse_DBLP_file(file_path_dblp, dblp_callbacks,paper_limit,0)
+    print(f"DBLP hash table built for k={k}")
+    end_time_build_hashmap = time.time()
+    hashmap_build_time = end_time_build_hashmap - start_time_build_hashmap
 
-        #used to create a hashmap of kmer repeating frequency
-        repeat_kmer_hashmap = {}
-        
-        #build the mer_hash table for DBLP
-        dblp_callbacks = [
-            lambda current_paper: mer_hashtable(current_paper, dblp_mer_hash, arr_builder),
-            lambda current_paper: random_sample_papers(current_paper.title, current_paper.paper_id,chosen_probability),
-            lambda current_paper: paper_details_population(current_paper.paper_id, current_paper.title, paper_details),
-            lambda current_paper: repeating_kmer_study(current_paper,repeat_kmer_hashmap,arr_builder)
-            #lambda current_paper: random_sample_papers(current_paper.title if current_paper is not None else None, current_paper.paper_id if current_paper is not None else None, chosen_probability)
-        ]
-
-        start_time_build_hashmap = time.time()
-        parse_DBLP_file(file_path_dblp, dblp_callbacks, paper_limit)
-        print(f"DBLP hash table built for k={k_value}")
-        end_time_build_hashmap = time.time()
-        hashmap_build_time = end_time_build_hashmap-start_time_build_hashmap
+    
+    return dblp_mer_hash, selected_dblp_papers, paper_details, hashmap_build_time, repeat_kmer_hashmap, repeating_mers_remove
 
 
-        remove_k_mer_sum = 0
-        dblp_mer_hash = filter_and_remove_kmers(repeat_kmer_hashmap,dblp_mer_hash,repeating_mers_remove)
 
 
-        for j in range(len(num_removed_kmers)):
+def perform_trials(results, k_value, remove_k_mer_sum, paper_limit, selected_dblp_papers, dblp_mer_hash, num_removed_kmers, levenshtein_candidates, paper_details,hashmap_build_time,repeat_kmer_hashmap,repeating_mers_remove,start_paper):
+    results = []
+    remove_k_mer_sum = 0
+    for i in range(len(num_removed_kmers)):
+        dblp_mer_hash = filter_and_remove_kmers(repeat_kmer_hashmap, dblp_mer_hash, repeating_mers_remove)
+        trial_results = []
+        successful_candidates = 0
+        total_random_papers = 0
+        total_query_time = 0
+        remove_k_mer_sum += num_removed_kmers[i]
 
-            remove_k_mer_sum += num_removed_kmers[j]
-        
-            dblp_mer_hash = remove_top_k_mers(dblp_mer_hash,num_removed_kmers[j])
+        for i in range(len(selected_dblp_papers)):
+            start_time_query = time.time()
+            query_result = query_selector(selected_dblp_papers[i][1], dblp_mer_hash, mer_builder(selected_dblp_papers[i][1], 3, False, False))
+            top_matches = top_candidates_levenshtein(query_result, levenshtein_candidates, selected_dblp_papers[i][1], paper_details)
+            end_time_query = time.time()
+            query_time = end_time_query - start_time_query
+            total_query_time += query_time
 
-            print(f"Removed top {remove_k_mer_sum}")
-            
-            #record results for each trial so that we can append them later to our results array that keeps track of each trial
+            if len(top_matches) >= 2:
+                ratio = top_matches[0][1], "-", top_matches[1][1]
+                best_match_id = top_matches[0][0]
+                second_best_match_id = top_matches[1][0]
+                best_match_title = top_matches[0][3]
+                second_best_match_title = top_matches[1][3]
+            else:
+                ratio = 0
+                best_match_id = "None"
+                second_best_match_id = 0
 
-            trial_results = []
-            successful_candidates = 0
-            total_random_papers = 0
-            total_query_time = 0
-            for i in range(len(selected_dblp_papers)):
-                start_time_query = time.time()
-                #return back a hashmap of counts for each paper
-                query_result = query_selector(selected_dblp_papers[i][1], dblp_mer_hash, mer_builder(selected_dblp_papers[i][1], 3, False, False))
-                
+            try:
+                if selected_dblp_papers[i][1] == best_match_title:
+                    successful_candidates += 1
+                total_random_papers += 1
+            except UnboundLocalError:
+                print("An UnboundLocalError occurred. 'best_match_id' is not associated with a value.")
 
-                #gives us our top two papers back
-                #top_matches = top_candidates(query_result, 2)
-
-                top_matches = top_candidates_levenshtein(query_result, levenshtein_candidates,selected_dblp_papers[i][1], paper_details)
-
-                end_time_query = time.time()
-                query_time = end_time_query - start_time_query
-                total_query_time += query_time
-
-
-                #testing for results from top_matches
-                #for i in range(len(top_matches)):
-                #   print(top_matches[i])
-
-                # Calculate the ratio of counts
-                if len(top_matches) >= 2:
-                    ratio = top_matches[0][1], "-", top_matches[1][1]
-                    best_match_id = top_matches[0][0]
-                    second_best_match_id = top_matches[1][0]
-                    best_match_title = top_matches[0][3]
-                    second_best_match_title = top_matches[1][3]
-                    
+            if i == len(selected_dblp_papers) - 1:
+                average_success_rate = (successful_candidates / total_random_papers) * 100
+                trial_results.append((k_value, remove_k_mer_sum, paper_limit, selected_dblp_papers[i][1], selected_dblp_papers[i][0], best_match_id, second_best_match_id, query_time, ratio, hashmap_build_time, average_success_rate, (total_query_time / len(selected_dblp_papers))))
+            else:
+                if selected_dblp_papers[i][1] == best_match_title:
+                    trial_results.append((k_value, remove_k_mer_sum, paper_limit, selected_dblp_papers[i][1], selected_dblp_papers[i][0], best_match_id, second_best_match_id, query_time, ratio, hashmap_build_time, 'Match', '-'))
                 else:
-                    ratio = 0
-                    best_match_id = "None"
-                    second_best_match_id = 0
+                    trial_results.append((k_value, remove_k_mer_sum, paper_limit, selected_dblp_papers[i][1], selected_dblp_papers[i][0], best_match_id, second_best_match_id, query_time, ratio, hashmap_build_time, 'NOT MATCH', '-'))
 
-                try:
-                    #if titles match this is considered a success
-                    if selected_dblp_papers[i][1] == best_match_title:
-                        successful_candidates += 1
-                        #print("Success")
-                    total_random_papers += 1
-                except UnboundLocalError:
-                    # Handle the UnboundLocalError here
-                    print("An UnboundLocalError occurred. 'best_match_id' is not associated with a value.")
+        print(f"Query completed for removing top {remove_k_mer_sum} mers")
+        results.extend(trial_results)
+        return results
 
-                if i == len(selected_dblp_papers) - 1:
-                    #print(successful_candidates, "-", total_random_papers)
-                    average_success_rate = (successful_candidates / total_random_papers)*100
-                    #print(average_success_rate)
-                    trial_results.append((k_value, remove_k_mer_sum, paper_limit, selected_dblp_papers[i][1], selected_dblp_papers[i][0], best_match_id, second_best_match_id, query_time, ratio, hashmap_build_time, average_success_rate,(total_query_time/len(selected_dblp_papers))))           
-                else:
-                    if(selected_dblp_papers[i][1] == best_match_title):
-                        trial_results.append((k_value, remove_k_mer_sum, paper_limit, selected_dblp_papers[i][1], selected_dblp_papers[i][0], best_match_id, second_best_match_id, query_time, ratio, hashmap_build_time,'Match','-'))
-                    else:
-                        trial_results.append((k_value, remove_k_mer_sum, paper_limit, selected_dblp_papers[i][1], selected_dblp_papers[i][0], best_match_id, second_best_match_id, query_time, ratio, hashmap_build_time,'NOT MATCH','-'))
-
-            print(f"Query completed for removing top {remove_k_mer_sum} mers")
-
-            all_trial_results.extend(trial_results)
-
-    results.extend(all_trial_results)
-    return results
 
     
 
