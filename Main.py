@@ -38,20 +38,20 @@ def main():
     #print(memoryatend/1024/1024)
     #print((memoryatend-memoryatstart)/1024/1024)
 
-    query_count1 = query_selector("Analyzing scheduling with transient failures", dblp_mer_hash,mer_builder("Analyzing scheduling with transient failures", 3, False, False))
+    query_count1 = query_selector("Modeling Structured Open Worlds in a Database System: The FLL-Approach.", dblp_mer_hash,mer_builder("Modeling Structured Open Worlds in a Database System: The FLL-Approach.", 3, False, False))
     print (query_count1)
 
     #end = time.time()
     #print(end - start)
 
 
-    #histogramQuery(query_count1, filename="query_histogram_DBLP_from_MAG_removing_50_kmers.png")
+    #histogramQuery(query_count1, filename="query_histogram_DBLP_1.svg")
     #histogramQuery(query_count1)
     #histogramQuery(query_count2, filename="query_histogram_DBLP_2.png")
     #histogramQuery(query_count2)
     #histogramQuery(query_count3, filename="query_histogram_DBLP_3.png")
 
-    #histogramMers(dblp_mer_hash,0,200, filename="most_frequent_million_mers.png")
+    histogramMers(dblp_mer_hash,0,200, filename="most_frequent_million_mers.svg")
     #histogramMers(mag_mer_hash,1,20, filename="most_frequent_mer_MAG_histogram.png")
 
 

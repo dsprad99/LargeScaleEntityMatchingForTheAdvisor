@@ -25,10 +25,10 @@ def parse_DBLP_file(file_path,callback,count_to,start_paper):
         #help us keep track of if we are inside a paper currently
         inside_paper = False
         for current_line in gz_file:
-            if i < count_to:
+            if i > count_to:
                 break
 
-            if(start_paper>=i):
+            if(start_paper<=i):
                 #check for closing tag first for cases such as
                 #</incollection><incollection mdate="2017-07-12" key="reference/cn/Prinz14" publtype="encyclopedia">
                 if '</article>' in current_line or '</inproceedings>' in current_line or '</incollection>' in current_line or '</book>' in current_line:
@@ -87,7 +87,7 @@ def parse_MAG_file(file_path,callback,start_line, count_to):
     line_counter = 0
     with gzip.open(file_path, 'rt', encoding='utf-8') as file:
         for line in file:
-            if(start_line >=line_counter):
+            if(start_line <=line_counter):
                 line = line.encode('utf-8', errors='replace').decode('utf-8')
                 if(line_counter > count_to):
                     return
@@ -109,6 +109,7 @@ def parse_MAG_file(file_path,callback,start_line, count_to):
                 current_paper.file_source = "MAG"
                 for fnction in callback:
                         fnction(current_paper)
+    return line_counter
 
 
 

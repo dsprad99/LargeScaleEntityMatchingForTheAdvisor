@@ -36,23 +36,25 @@ def build_dblp_hash_table(k, paper_limit, chosen_probability, repeating_mers_rem
     print(f"DBLP hash table built for k={k}")
     end_time_build_hashmap = time.time()
     hashmap_build_time = end_time_build_hashmap - start_time_build_hashmap
-
-    
+        
     return dblp_mer_hash, selected_dblp_papers, paper_details, hashmap_build_time, repeat_kmer_hashmap, repeating_mers_remove
 
 
 
 
-def perform_trials(results, k_value, remove_k_mer_sum, paper_limit, selected_dblp_papers, dblp_mer_hash, num_removed_kmers, levenshtein_candidates, paper_details,hashmap_build_time,repeat_kmer_hashmap,repeating_mers_remove,start_paper):
+def perform_trials(k_value, paper_limit, selected_dblp_papers, dblp_mer_hash, num_removed_kmers, levenshtein_candidates, paper_details,hashmap_build_time,repeat_kmer_hashmap,repeating_mers_remove,start_paper):
+        
     results = []
     remove_k_mer_sum = 0
-    for i in range(len(num_removed_kmers)):
+
+
+    for j in range(len(num_removed_kmers)):
         dblp_mer_hash = filter_and_remove_kmers(repeat_kmer_hashmap, dblp_mer_hash, repeating_mers_remove)
         trial_results = []
         successful_candidates = 0
         total_random_papers = 0
         total_query_time = 0
-        remove_k_mer_sum += num_removed_kmers[i]
+        remove_k_mer_sum += num_removed_kmers[j]
 
         for i in range(len(selected_dblp_papers)):
             start_time_query = time.time()
@@ -91,7 +93,7 @@ def perform_trials(results, k_value, remove_k_mer_sum, paper_limit, selected_dbl
 
         print(f"Query completed for removing top {remove_k_mer_sum} mers")
         results.extend(trial_results)
-        return results
+    return results
 
 
     
@@ -117,7 +119,6 @@ def csv_writer(results, file_name):
         fieldnames = ['k', 'num_removed_kmers', 'paper_limit', 'paper_title', 'paper_id', 'best_candidate_id', '2nd_best_candidate_id', 'query_time', 'ratio', 'hashmap_build_time','average_success_rate','average_query_time']
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()
-
         for result in results:
             writer.writerow({
                 'k': result[0],

@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import sys
 from Levenshtein import distance,ratio
-from numba import jit
+
 
 #*Documentation* if when developing the mer_hash table and you 
 #pass that you do want it to generate characters in lowercase 
@@ -194,7 +194,6 @@ def histogramMers(mer_hash,start_num,end_num, filename=None):
 
     bar_width = 0.5
     plt.bar(range(len(k_mer_labels)), k_mer_counts, width=bar_width)
-    plt.xticks(range(len(k_mer_labels)), k_mer_labels, rotation=90, fontsize=4)
     plt.xlabel("K-mer")
     plt.ylabel("Frequency with hashmap")
     plt.title("Top 200 3-Mer Histogram - 1,000,000 Papers")
@@ -241,16 +240,16 @@ def histogramRepeatedMers(mer_hash, start_num, end_num, filename=None):
 
 def histogramQuery(count_dict, filename= None):
     # Generate and print the histogram
-    top_k_mers = sorted(count_dict.items(), key=lambda x: x[1], reverse=True)[:3]
+    top_k_mers = sorted(count_dict.items(), key=lambda x: x[1], reverse=True)[:10]
 
     k_mer_labels, k_mer_counts = zip(*top_k_mers)
 
     bar_width = 0.5
     plt.bar(range(len(k_mer_labels)), k_mer_counts, width=bar_width, color='blue')
     plt.xticks(range(len(k_mer_labels)), k_mer_labels, rotation=90, fontsize=8)  
-    plt.xlabel("MAG Ids")
+    plt.xlabel("DBLP IDs")
     plt.ylabel("Frequency with hashmap")
-    plt.title("Top 3 MAG ID's Histogram")
+    plt.title("Top 10 DBLP ID's Histogram")
     plt.tight_layout()
 
     if filename:
