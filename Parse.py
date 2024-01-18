@@ -82,16 +82,18 @@ def parse_DBLP_file(file_path,callback,count_to,start_paper):
     return i
 
 
-def parse_MAG_file(file_path,callback,start_line, count_to):
+def parse_MAG_file(callback,start_line, count_to):
     file_path = 'Papers.txt.gz'
     line_counter = 0
     with gzip.open(file_path, 'rt', encoding='utf-8') as file:
         for line in file:
+            line_counter += 1
+            if(line_counter > count_to):
+                    return
+            
             if(start_line <=line_counter):
                 line = line.encode('utf-8', errors='replace').decode('utf-8')
-                if(line_counter > count_to):
-                    return
-                line_counter += 1
+                
 
                 fields = line.strip().split('\t')
                 current_paper = Paper()
@@ -109,7 +111,7 @@ def parse_MAG_file(file_path,callback,start_line, count_to):
                 current_paper.file_source = "MAG"
                 for fnction in callback:
                         fnction(current_paper)
-    return line_counter
+    
 
 
 
