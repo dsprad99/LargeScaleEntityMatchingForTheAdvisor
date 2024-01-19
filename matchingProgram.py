@@ -41,10 +41,12 @@ def build_dblp_hash_table(k, paper_limit, repeating_mers_remove):
 
 
 
+successful_candidates= 0
+total_candidates = 0
 def matching_process(k_value, dblp_mer_hash, num_removed_kmers, levenshtein_candidates, paper_details,hashmap_build_time,candidateTitle):
         
+    global successful_candidates, total_candidates
     trial_results = []
-    successful_candidates = 0
     total_random_papers = 0
     total_query_time = 0
     
@@ -54,7 +56,7 @@ def matching_process(k_value, dblp_mer_hash, num_removed_kmers, levenshtein_cand
     top_matches = top_candidates_levenshtein(query_result, levenshtein_candidates, candidateTitle, paper_details)
     end_time_query = time.time()
     query_time = end_time_query - start_time_query
-    total_query_time += query_time
+    
 
     if len(top_matches) >= 2:
         ratio = top_matches[0][1], "-", top_matches[1][1]
@@ -67,33 +69,21 @@ def matching_process(k_value, dblp_mer_hash, num_removed_kmers, levenshtein_cand
         best_match_title = "None"
         second_best_match_title = "None"
 
-    try:
-        if candidateTitle == best_match_title:
-            successful_candidates += 1
-        total_random_papers += 1
-    except UnboundLocalError:
-        print("An UnboundLocalError occurred. 'best_match_id' is not associated with a value.")
 
-
-
+   
+    if candidateTitle == best_match_title:
+        trial_results.append((k_value, num_removed_kmers, candidateTitle, best_match_title, second_best_match_title, query_time, ratio, hashmap_build_time, 'Match',query_time,'citation'))
+        successful_candidates +=1 
+    else:
+        trial_results.append((k_value, num_removed_kmers, candidateTitle, best_match_title, second_best_match_title, query_time, ratio, hashmap_build_time, 'Not Match',query_time,'citation'))
     
-    trial_results.append((k_value, num_removed_kmers, candidateTitle, best_match_title, second_best_match_title, query_time, ratio, hashmap_build_time, 'Match', '-'))
+    total_candidates += 1
+
+
+
     return trial_results
 
 
-    
-
-
-#record results for each trial so that we can append them later to our results array that keeps track of each trial
-global selected_dblp_papers
-selected_dblp_papers = []
-def random_sample_papers(paper_title,paper_id,chosen_probability):
-    global counter
-    global selected_dblp_papers
-    random_number = random.random()
-    if chosen_probability > random_number*100:
-            individual_paper = [paper_id, paper_title]
-            selected_dblp_papers.append(individual_paper)
 
 
 
@@ -101,9 +91,13 @@ def random_sample_papers(paper_title,paper_id,chosen_probability):
 def csv_writer(results, file_name):
     # Write results to a CSV file
     with open(file_name, 'w', newline='', encoding='utf-8') as csvfile:
-        fieldnames = ['k', 'num_removed_kmers', 'candidate_paper_title', 'best_candidate_paper_title', '2nd_best_candidate_paper_title', 'query_time', 'ratio', 'hashmap_build_time','average_success_rate','average_query_time']
+        fieldnames = ['k', 'num_removed_kmers', 'candidate_paper_title', 'best_candidate_paper_title', '2nd_best_candidate_paper_title', 'query_time', 'ratio', 'hashmap_build_time','match','query_time','citation']
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()
+
+        total_candidates = 0
+        matching_candidates = 0
+
         for result in results:
             writer.writerow({
                 'k': result[0],
@@ -114,9 +108,20 @@ def csv_writer(results, file_name):
                 'query_time': result[5],
                 'ratio': result[6],
                 'hashmap_build_time': result[7],
-                'average_success_rate': result[8],
-                'average_query_time': result[9]
+                'match': result[8],
+                'query_time': result[9],
+                'citation': result[10]
             })
+    
+        
+            if(result[9]=="Match"):
+                matching_candidates += 1
+            total_candidates += 1
+
+        print("Candidates with a match :",matching_candidates)
+        print("Total candidates :",total_candidates)
+
+        print("Matching percentage: ",matching_candidates/total_candidates)
 
         
 
