@@ -4,7 +4,7 @@ from matchingProgram import matching_process,build_dblp_hash_table,csv_writer,su
 
 
 k_value = 3
-paper_limit = 1000
+paper_limit = 100000000000000
 repeating_mers_remove = 0
 num_removed_kmers = 0
 levenshtein_candidates = 10
@@ -14,11 +14,11 @@ results = []
 dblp_mer_hash, paper_details, hashmap_build_time = build_dblp_hash_table(k_value, paper_limit, repeating_mers_remove)
 
 queries = [
-        (0, 50),
-        (50, 100),
-        (100, 150),
-        (150, 200),
-        (250, 300)
+        (0, 5),
+        (6, 10),
+        (11, 15),
+        (16, 20),
+        (21, 25)
     ]
 
 callbacks = [lambda currentPaper: results.extend(matching_process(k_value, dblp_mer_hash, num_removed_kmers, levenshtein_candidates, paper_details,hashmap_build_time,currentPaper.title))]

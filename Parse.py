@@ -12,6 +12,7 @@ class Paper:
         self.title = None
         self.url = None
         self.published_through = None
+        self.citation_count = None
         self.file_source = None
 
 
@@ -98,7 +99,7 @@ def parse_MAG_file(callback,start_line, count_to):
                 fields = line.strip().split('\t')
                 current_paper = Paper()
                 # field[0] = the paper's MAG ID
-                paper_identification, doi_num, paper_title = fields[0], fields[2], fields[4]
+                paper_identification, doi_num, paper_title, citation_count = fields[0], fields[2], fields[4],fields[16]
                 current_paper.paper_id = paper_identification
 
                 if doi_num is not None:
