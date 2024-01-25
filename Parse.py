@@ -1,6 +1,7 @@
 import gzip
 import xml.etree.ElementTree as ET
 from Callback import Callback
+import sys
 
 class Paper: 
     def __init__(self):
@@ -25,6 +26,9 @@ def parse_DBLP_file(file_path,callback,count_to,start_paper):
         #help us keep track of if we are inside a paper currently
         inside_paper = False
         for current_line in gz_file:
+            if count_line % 15000 == 0:
+                print (f"DBLP line {count_line}")
+                sys.stdout.flush()
             if i > count_to:
                 break
 
