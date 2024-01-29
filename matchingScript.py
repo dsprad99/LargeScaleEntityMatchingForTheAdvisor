@@ -10,10 +10,10 @@ parser.add_argument('--fileName', type=str, help='CSV File Name')
 
 args = parser.parse_args()
 
-k_value = 3
+k_value = 5
 paper_limit = 6649168
-repeating_mers_remove = 0
-num_removed_kmers = 0
+repeating_mers_remove = 10
+num_removed_kmers = 1000
 levenshtein_candidates = 10
 results = []
 
