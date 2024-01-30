@@ -1,8 +1,9 @@
 import gzip
 import xml.etree.ElementTree as ET
 from Callback import Callback
+import sys
 
-class Paper: 
+class Paper:
     def __init__(self):
         self.paper_id = None
         self.author = None
@@ -26,6 +27,9 @@ def parse_DBLP_file(file_path,callback,count_to,start_paper):
         #help us keep track of if we are inside a paper currently
         inside_paper = False
         for current_line in gz_file:
+            #if count_line % 15000 == 0:
+             #   print (f"DBLP line {count_line}")
+              #  sys.stdout.flush()
             if i > count_to:
                 break
 
@@ -44,7 +48,7 @@ def parse_DBLP_file(file_path,callback,count_to,start_paper):
 
                         i+=1
 
-                
+
                 #check for an opening tag to make a new Paper object
                 if '<article' in current_line or '<inproceedings' in current_line or '<incollection' in current_line or '<book' in current_line:
                     if not inside_paper:
@@ -52,7 +56,7 @@ def parse_DBLP_file(file_path,callback,count_to,start_paper):
                         current_paper.file_source = "DBLP"
                         inside_paper = True
 
-                
+
 
                 if current_paper:
                     if '<author>' in current_line:
@@ -63,8 +67,8 @@ def parse_DBLP_file(file_path,callback,count_to,start_paper):
                         current_paper.pages = current_line.replace('<pages>', '').replace('</pages>', '').strip()
                     elif '<ee' in current_line:
                         doi_value = current_line.replace('<ee', '').replace('</ee>', '').strip()
-                        doi_value = doi_value.replace('https://doi.org/', '')  
-                        current_paper.doi = doi_value 
+                        doi_value = doi_value.replace('https://doi.org/', '')
+                        current_paper.doi = doi_value
                     elif '<title>' in current_line:
                         current_paper.title = current_line.replace('<title>', '').replace('</title>', '').strip()
                     elif '<url>' in current_line:
@@ -89,17 +93,15 @@ def parse_MAG_file(callback,start_line, count_to):
     with gzip.open(file_path, 'rt', encoding='utf-8') as file:
         for line in file:
             line_counter += 1
-            if(line_counter > count_to):
-                    return
-            
             if(start_line <=line_counter):
                 line = line.encode('utf-8', errors='replace').decode('utf-8')
-                
+                if(line_counter > count_to):
+                    return
 
                 fields = line.strip().split('\t')
                 current_paper = Paper()
                 # field[0] = the paper's MAG ID
-                paper_identification, doi_num, paper_title, citation_count = fields[0], fields[2], fields[4],fields[16]
+                paper_identification, doi_num, paper_title = fields[0], fields[2], fields[4]
                 current_paper.paper_id = paper_identification
 
                 if doi_num is not None:
@@ -112,7 +114,4 @@ def parse_MAG_file(callback,start_line, count_to):
                 current_paper.file_source = "MAG"
                 for fnction in callback:
                         fnction(current_paper)
-    
-
-
-
+    return line_counter
