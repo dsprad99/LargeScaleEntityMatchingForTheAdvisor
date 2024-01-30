@@ -1,9 +1,9 @@
 #!/bin/bash
 #SBATCH --partition=Orion
 #SBATCH --job-name=theAdvisor
-#SBATCH --nodes=2
-#SBATCH --ntasks-per-node=4
-#SBATCH --mem=32GB
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=3
+#SBATCH --mem=100GB
 #SBATCH --time=1:20:00
 
 
@@ -17,7 +17,7 @@ echo ""
 
 cd $SLURM_SUBMIT_DIR
 
-python parallelScript.py
+parallel python matchingScript.py --start {1} --end {2} --fileName testing_parallel_matching_script ::: 0 4 ::: 6 10 ::: 12 16
 
 echo ""
 echo "======================================================"
