@@ -17,9 +17,7 @@ echo ""
 
 cd $SLURM_SUBMIT_DIR
 
-parallel python matchingScript.py --start {1} --end {2} --fileName testing_parallel_matching_script ::: 0 4 ::: 6 10 ::: 12 16
-
-echo ""
+parallel --link python matchingScript.py --start {1} --end {2} --fileName testing_parallel_matching_script ::: 0 101 151 ::: 1$echo ""
 echo "======================================================"
 echo "End Time : $(date)"
 echo "======================================================"
