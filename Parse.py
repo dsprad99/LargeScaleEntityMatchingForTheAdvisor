@@ -16,7 +16,8 @@ class Paper:
         self.citation_count = None
         self.file_source = None
 
-
+DBLP_line_count_freq=-1
+        
 def parse_DBLP_file(file_path,callback,count_to,start_paper):
     current_paper = None
     with gzip.open(file_path, 'rt', encoding='utf-8') as gz_file:
@@ -27,9 +28,13 @@ def parse_DBLP_file(file_path,callback,count_to,start_paper):
         #help us keep track of if we are inside a paper currently
         inside_paper = False
         for current_line in gz_file:
+            if DBLP_line_count_freq > 0:
+                if count_line % DBLP_line_count_freq == 0:
+                    print (f"DBLP line {count_line}")
+                    sys.stdout.flush()
             #if count_line % 15000 == 0:
-             #   print (f"DBLP line {count_line}")
-              #  sys.stdout.flush()
+             #   
+              #  
             if i > count_to:
                 break
 

@@ -25,6 +25,8 @@ PYTHON=python3
 total_paper_querying=1000
 total_DBLP_papers=6649168
 
+NBJOBS=1
+
 #this is the paper that we will start running our program on
 start_paper=200
 
@@ -48,7 +50,7 @@ done
 
 end_values[-1]=$((end_values[-1] + total_paper_querying - (divided_work * partitions)))
 
-parallel --link ${PYTHON} matchingScript.py --paperLimit {1} --start {2} --end {3} --fileName testing_parallel_matching_script ::: "$total_DBLP_papers" ::: "${start_values[@]}" ::: "${end_values[@]}"
+parallel --jobs=${NBJOBS} --link ${PYTHON} matchingScript.py --paperLimit {1} --start {2} --end {3} --fileName testing_parallel_matching_script ::: "$total_DBLP_papers" ::: "${start_values[@]}" ::: "${end_values[@]}"
 echo ""
 echo "======================================================"
 echo "End Time : $(date)"

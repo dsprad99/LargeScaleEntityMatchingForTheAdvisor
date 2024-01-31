@@ -9,6 +9,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 
+Parse.DBLP_line_count_freq = 10000
 
 def build_dblp_hash_table(k, paper_limit, repeating_mers_remove):
     # create DBLP hashmap
