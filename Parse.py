@@ -13,6 +13,7 @@ class Paper:
         self.title = None
         self.url = None
         self.published_through = None
+        self.citation_count = None
         self.file_source = None
 
 
@@ -86,21 +87,23 @@ def parse_DBLP_file(file_path,callback,count_to,start_paper):
     return i
 
 
-def parse_MAG_file(file_path,callback,start_line, count_to):
+def parse_MAG_file(callback,start_line, count_to):
     file_path = 'Papers.txt.gz'
     line_counter = 0
     with gzip.open(file_path, 'rt', encoding='utf-8') as file:
         for line in file:
+            line_counter += 1
+            if(line_counter > count_to):
+                    return
+            
             if(start_line <=line_counter):
                 line = line.encode('utf-8', errors='replace').decode('utf-8')
-                if(line_counter > count_to):
-                    return
-                line_counter += 1
+                
 
                 fields = line.strip().split('\t')
                 current_paper = Paper()
                 # field[0] = the paper's MAG ID
-                paper_identification, doi_num, paper_title = fields[0], fields[2], fields[4]
+                paper_identification, doi_num, paper_title, citation_count = fields[0], fields[2], fields[4],fields[16]
                 current_paper.paper_id = paper_identification
 
                 if doi_num is not None:
@@ -113,7 +116,7 @@ def parse_MAG_file(file_path,callback,start_line, count_to):
                 current_paper.file_source = "MAG"
                 for fnction in callback:
                         fnction(current_paper)
-    return line_counter
+    
 
 
 
