@@ -2,24 +2,33 @@ import matplotlib.pyplot as plt
 import sys
 from Levenshtein import distance,ratio
 
+'''
+@brief: this class is meant to serve where k-mer calculations will take place
 
-#*Documentation* if when developing the mer_hash table and you 
-#pass that you do want it to generate characters in lowercase 
-#then when querying you also must pass that you want it to devleop the 
-#hash table used to develop in lowercase or you will get an error
+@author: Davis Spradling
+'''
 
 
-#allows us to query a title from our mer_hash that contains
-#an ID for every mer that exists
-#therefore using the mer_hash it is able to identify the frequency of 
-#mers associated with an ID number to find the best candidate
-def query_selector(title, mer_hash, mer_builder_callback):
+'''
+allows us to query a title from our mer_hash that contains
+an ID for every mer that exists
+therefore using the mer_hash it is able to identify the frequency of 
+mers associated with an ID number to find the best candidate
 
-    #count = {}
-    #for each kmer in querytitle
-    # for each paper in hash[kmer]
-    #	count[paper] + = 1
-    #print count
+high frequency = good candidate
+
+@param: mer_hash - has a list of papers associated with each kmer value
+ie. ["ere"] = [83212,34233,2321] these id numbers being associated with a paper where that k-mer exits
+
+@param: mer_builder_callback - takes in the mer_builder function and is called to form an array of a title broken
+into mers
+ie. at 3-mer ["hello"] = ["hel","ell","llo"]
+
+
+@return: count - will return a count of the ids that are the most frequently associated with the title being queried
+'''
+
+def query_selector(mer_hash, mer_builder_callback):
 
     count = {}
     arr = mer_builder_callback
@@ -36,50 +45,37 @@ def query_selector(title, mer_hash, mer_builder_callback):
     return count
 
 
-#purpose of this function is to test how long it takes 
-#to query through the DBLP hashtable given MAG titles
+'''
+allows us to add the title of the paper that an ID is associated with
 
-#we have a try catch statement in the background that is 
-#made to catch any error in the second for loop where if our 
-#mer is not in our dblp hash table then we will not get an error
-#but it will just pass over it
-def query_selector_MAG_test(title, mer_hash, x, mer_builder_callback):
+@param: id - id of the paper passed in
 
-    #count = {}
-    #for each kmer in querytitle
-    # for each paper in hash[kmer]
-    #	count[paper] + = 1
-    #print count
+@param: title - title of the associated paper passed in
 
-    count = {}
-    cost=0
-    arr = mer_builder_callback
-    for kmer in arr:
-        try:
-            for each_paper in mer_hash[kmer]:
-                cost = cost+1
-                if each_paper in count:
-                    count[each_paper] += 1
-                else:
-                    count[each_paper] = 1
-        except KeyError as e:
-            pass
-    print ("matching: ", title, "cost: ", cost, "in ", len(count))
-    return count
-
-
+@paper_dictionary - dictonary of where the values are being stored
+'''
 def paper_details_population(id, title, paper_dictionary):
     paper_dictionary[id] = title
 
 
 
-#mer_builder allows for us to build an array of 
-#k mers in a given string
-#example
-#title: hello
-#array: mer_array = [hel, elo, llo]
+    
+'''
+mer_builder helps us actually build an array containing k-mer values
+ie. title: hello   array: mer_array = [hel, elo, llo]
 
-def mer_builder(paper_title,x, lower_case = False, remove_spaces = False):  
+@param: paper_title - string value of our paper title
+
+@param: k - mer value used to split paper_title into k-mer array
+
+@param: lower_case - if false will process characters at lower and uppercase if true otherwise
+
+@param: remove_spaces - if false will not remove spaces if true otherwise
+
+@return: mer_array - returns array of broken up k-mer values from title passed in
+'''
+
+def mer_builder(paper_title,k, lower_case = False, remove_spaces = False):  
     
     if paper_title is None:
         return []
@@ -87,7 +83,7 @@ def mer_builder(paper_title,x, lower_case = False, remove_spaces = False):
     mer_array = []
     current_mer = ""
     i = 0
-    while len(current_mer) < x and i < len(paper_title):
+    while len(current_mer) < k and i < len(paper_title):
         if remove_spaces and paper_title[i] == ' ':
             i += 1
             continue
@@ -99,13 +95,17 @@ def mer_builder(paper_title,x, lower_case = False, remove_spaces = False):
     mer_array.append(current_mer)
 
     while i < len(paper_title):
+
         #we will skip the current character value we are on
         #if remove_spaces is true and we have a space
+
         if remove_spaces and paper_title[i] == ' ':
             i += 1
             continue
+
         #remove the first character of the current mer
         #and add the next character not in the mer
+
         current_mer = current_mer[1:] + paper_title[i]
         if lower_case:
             current_mer = current_mer.lower()
@@ -114,9 +114,24 @@ def mer_builder(paper_title,x, lower_case = False, remove_spaces = False):
 
     return mer_array
 
-#allows us to take in a paper object along with the k-mer represented by x
-#in this instance and will build the mer_hash table which will have an ID or 
-#ID's associated for every mer
+
+'''
+allows us to take in a paper object and build our mer hashtable by adding 
+those papers k-mer values with there paper ID to the hashmap
+
+ie. "hello" = 786544
+ie. "help" = 786545
+["hel"] = [786544,786545]
+["ell"] = [786544]
+["llo"] = [786544]
+["elp] = [786545]
+
+@param: paper-paper object passed in containing attirbutes like papert title, ID number, etc.
+
+@param: mer_hash - k-mer hash table being built
+
+@param: mer_builder_call - callback that will split our title into mers
+'''
 def mer_hashtable(paper, mer_hash, mer_builder_callback):
     mer_array = mer_builder_callback(paper)
     
@@ -127,13 +142,22 @@ def mer_hashtable(paper, mer_hash, mer_builder_callback):
             mer_hash[arr].append(paper.paper_id)
     
     
+'''
+removes the top numbers of k-mers in the hashmap
+main use case it to reduce frequent k-mer querying
 
-def remove_top_k_mers(mer_hash, k):
+@param: mer_hash - hashtable used to store k-mer values with frequency
+
+@param: x - number of top k-mer values we want removed
+
+@return: mer_hash - hashmap with removed k-mers returned
+'''
+def remove_top_k_mers(mer_hash, x):
         # Sort k-mers by frequency in descending order
         sorted_k_mers = sorted(mer_hash.items(), key=lambda x: len(x[1]), reverse=True)
 
         # Get the top k k-mers
-        top_k_mers = sorted_k_mers[:k]
+        top_k_mers = sorted_k_mers[:x]
 
         # Remove the top k k-mers from the hash table
         for k_mer, _ in top_k_mers:
@@ -141,15 +165,26 @@ def remove_top_k_mers(mer_hash, k):
         return mer_hash
 
 
-#returns our top candidates from a hashmap of IDs and frequency of a k-mers from a string
+'''
+returns our top candidates from a hashmap of IDs and frequency of a k-mers from a string
+
+@param: query_dataset - hashmap that we want to query from
+
+@param: number_of_candidates - number of candidates that we want to see matches best
+
+@return: candidates - returns the best candidates in a 2-d array
+'''
+
 def top_candidates(query_dataset,number_of_candidates):
     candidates = []
+
     #sort our matches in descending (reverse) order from greatest to least
     sorted_matches = sorted(query_dataset.items(), key=lambda x: x[1], reverse=True)
     #for each papers ID we will add it from greatest to least in our candidates array
     #Note: we can add the paper_ID if we want to at some point using a 2D array
 
     for i, (paper_id, frequency) in enumerate(sorted_matches[:number_of_candidates], 1):
+
         #should add the paper_id and frequency of the candidate with the most matches at index 0 all the way to the least
         individual_candidate = [paper_id, frequency]
         candidates.append(individual_candidate)
@@ -157,11 +192,24 @@ def top_candidates(query_dataset,number_of_candidates):
     return candidates  
 
 
-#returns our top candidates from a hashmap of IDs and then goes through a levenshtein algorithm to find the true best cadidate
+
+
+'''
+returns our top candidates from a hashmap of IDs and then goes through a levenshtein algorithm 
+to find the true best cadidate
+
+@param: query_dataset - hashmap that we will be querying from
+
+@param: number_of_candidates - number of candidates we want to perform levenshtein on
+
+@param: query_title - title that we are trying to compare against
+
+@param: paper_details - allows us to grab the paper id associated with the paper title
+'''
 def top_candidates_levenshtein(query_dataset,number_of_candidates, query_title, paper_details):
     candidates = []
 
-    # Sort matches by frequency
+    #sort matches by frequency
     sorted_matches = sorted(query_dataset.items(), key=lambda x: x[1], reverse=True)
 
     for i, (paper_id, frequency) in enumerate(sorted_matches[:number_of_candidates], 1):
@@ -169,21 +217,28 @@ def top_candidates_levenshtein(query_dataset,number_of_candidates, query_title, 
         rat = ratio(query_title, candidate_title)
         candidates.append((paper_id, frequency, rat, candidate_title))
 
-    # Sort candidates by the Levenshtein ratio
+    #sort candidates by the Levenshtein ratio
     candidates.sort(key=lambda x: x[2], reverse=True)
 
     return candidates
 
 
 
-#allows us to take in a paper object along with the k-mer represented by x
-#in this instance and will build the mer_hash table which will have an ID or 
-#ID's associated for every mer
+'''
+allows us to build a histogram of the highest frequency k-mer
+
+@param: mer_hash - hashmap of the k-mer frequency
+
+@param: start_num - number frequency we want to start at plotting
+
+@param: end_num - number frequency we want to stop plotting
+'''
+
 def histogramMers(mer_hash,start_num,end_num, filename=None):
-    # Sort k-mers by frequency in descending order
+    #sort k-mers by frequency in descending order
     sorted_k_mers = sorted(mer_hash.items(), key=lambda x: len(x[1]), reverse=True)
     
-    # Include the top start_num to end_num K-mers
+    #include the top start_num to end_num K-mers
     top_k_mers = sorted_k_mers[start_num:end_num]  
 
     if not top_k_mers:
@@ -205,6 +260,18 @@ def histogramMers(mer_hash,start_num,end_num, filename=None):
         plt.show()
 
 
+'''
+allows us to build a histogram of the highest frequently repeated k-mer values within a title
+
+ex: "mississippi"
+could have - ssi repeating twice
+
+@param: mer_hash - hashmap of the k-mer frequency
+
+@param: start_num - number frequency we want to start at plotting
+
+@param: end_num - number frequency we want to stop plotting
+'''
 def histogramRepeatedMers(mer_hash, start_num, end_num, filename=None):
     if not isinstance(mer_hash, dict):
         print("mer_hash should be a dictionary")
@@ -237,7 +304,11 @@ def histogramRepeatedMers(mer_hash, start_num, end_num, filename=None):
 
 
 
+'''
+creates a histogram of the results of trying to query by the number of hits we get
 
+@param: count_dict - dictionary containing paper candidates  with there frequency of hits to a cetain title being queried
+'''
 def histogramQuery(count_dict, filename= None):
     # Generate and print the histogram
     top_k_mers = sorted(count_dict.items(), key=lambda x: x[1], reverse=True)[:10]
@@ -259,7 +330,15 @@ def histogramQuery(count_dict, filename= None):
 
 
 
+'''
+allows us to calcualte most frequently repeated k-mer values
 
+@param: paper - paper object used to pass into mer_builder_call
+
+@param: repeat_kmer_hashmap - hashmap passed in to fill the most frequently repeated k-mers
+
+@paramL mer_builder_callback - callback used to build mer array
+'''
 def repeating_kmer_study(paper,repeat_kmer_hashmap, mer_builder_callback):
     title_repeated_count = {}
     arr = mer_builder_callback(paper)
@@ -279,6 +358,15 @@ def repeating_kmer_study(paper,repeat_kmer_hashmap, mer_builder_callback):
 
 
 
+'''
+function to remove most frequent repeating k-mers using repeating_kmer_study returned hashmap
+
+@param: repeat_kmer_hashmap - hashmap returned from repeating_kmer_study containing most frequent repeated k-mers
+
+@param: dblp_hash_map - hashmap with k-mer value and IDs associated with it in it
+
+@return: dblp_hash_map - dblp hash map with deleted repeating k-mers
+'''
 def filter_and_remove_kmers(repeat_kmer_hashmap,dblp_hash_map, k):
 
     # Sort k-mers by their count in descending order

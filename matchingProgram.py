@@ -9,8 +9,19 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 
-Parse.DBLP_line_count_freq = 10000
+'''
+@brief: used to build hashtable and then begin candidate process through function calls to k-mer
+'''
 
+'''
+builds hashtable to hour dblp k-mer value and then ids with that k-mer
+
+@param: k - k-mer value being used for hashing
+
+@param: paper_limit - paper value that we want to go up to in building our hashmap around
+
+@param: repeating_mers_remove - number of most frequently repeating k-mers we want removed
+'''
 def build_dblp_hash_table(k, paper_limit, repeating_mers_remove):
     # create DBLP hashmap
     dblp_mer_hash = {}
@@ -44,16 +55,34 @@ def build_dblp_hash_table(k, paper_limit, repeating_mers_remove):
 
 successful_candidates= 0
 total_candidates = 0
+
+'''
+the candidate matching process taking place 
+
+*note* many of these parameters are for field values for filling in the trial_results array 
+
+@param: k_value - the k-value we use to query
+
+@param: dblp_hash_map - hashmap containing k-mer values and the ids associated with them
+
+@param: num_removed_kmers - value of k-mers removed
+
+@param: levenshtein_candidates - candidates used to move on to be evaluated in levenshtein process
+ 
+@param: paper_details - details containing a papers ID - paper Title
+
+@param: hashmap_build_time - build time of how long it took to build DBLP hashmap
+
+@param: candidateTitle - title of the paper going through the matching process
+'''
 def matching_process(k_value, dblp_mer_hash, num_removed_kmers, levenshtein_candidates, paper_details,hashmap_build_time,candidateTitle):
         
     global successful_candidates, total_candidates
     trial_results = []
-    total_random_papers = 0
-    total_query_time = 0
     
 
     start_time_query = time.time()
-    query_result = query_selector(candidateTitle, dblp_mer_hash, mer_builder(candidateTitle, k_value, False, False))
+    query_result = query_selector(dblp_mer_hash, mer_builder(candidateTitle, k_value, False, False))
     top_matches = top_candidates_levenshtein(query_result, levenshtein_candidates, candidateTitle, paper_details)
     end_time_query = time.time()
     query_time = end_time_query - start_time_query
@@ -88,7 +117,13 @@ def matching_process(k_value, dblp_mer_hash, num_removed_kmers, levenshtein_cand
 
 
 
+'''
+writes to a csv file containing information about matching_process
 
+@param: results - results from our matching_process in an array
+
+@param: file_name - file name that results will write to
+'''
 def csv_writer(results, file_name):
     # Write results to a CSV file
     with open(file_name, 'w', newline='', encoding='utf-8') as csvfile:
@@ -125,7 +160,15 @@ def csv_writer(results, file_name):
         print("Matching percentage: ",matching_candidates/total_candidates)
 
         
+'''
+prints histogram of the average accuracy and query time of results from the matching process
 
+@param: fileName - file name we want our histogram to print out to 
+
+@param: average_accuracy_boolean - true if we ant to see accuracy histogram false otherwise
+
+@param: average_query_time_boolean - true if we ant to see query time histogram false otherwise
+'''
 def average_histogram(fileName, average_accuracy_boolean, average_query_time_boolean, print_file_name = None):
         df = pd.read_csv(fileName)
 

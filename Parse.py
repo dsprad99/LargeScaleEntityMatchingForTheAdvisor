@@ -17,6 +17,24 @@ class Paper:
         self.file_source = None
 
 DBLP_line_count_freq=-1
+
+'''
+@brief: used to parse through DBLP and MAG datasets. DBLP being in XML format and MAG being in txt but uses CSV
+
+@author: Davis Spradling
+'''
+
+'''
+used to parse through DBLP
+
+@param: file_path - file path to access DBLP
+
+@param: callback - methods you want to be executed everytime a paper is parsed
+
+@param: count_to - paper number you want to quit performing callbacks on
+
+@param: start_paper - paper to start performing callbacks on
+'''
         
 def parse_DBLP_file(file_path,callback,count_to,start_paper):
     current_paper = None
@@ -91,6 +109,16 @@ def parse_DBLP_file(file_path,callback,count_to,start_paper):
 
     return i
 
+
+'''
+used to parse through MAG
+
+@param: callback - methods you want to be executed everytime a paper is parsed
+
+@param: count_to - paper number you want to quit performing callbacks on
+
+@param: start_line - paper to start performing callbacks on
+'''
 
 def parse_MAG_file(callback,start_line, count_to):
     file_path = 'Papers.txt.gz'
