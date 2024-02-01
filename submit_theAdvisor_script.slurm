@@ -2,7 +2,7 @@
 #SBATCH --partition=Orion
 #SBATCH --job-name=theAdvisor
 #SBATCH --nodes=1
-#SBATCH --ntasks-per-node=15
+#SBATCH --ntasks-per-node=1
 #SBATCH --mem=100GB
 #SBATCH --time=1:20:00
 
@@ -15,42 +15,40 @@ echo "Num Tasks : $SLURM_NTASKS total [$SLURM_NNODES nodes @ $SLURM_CPUS_ON_NODE
 echo "======================================================"
 echo ""
 
-#PYTHON=python
-PYTHON=python3
+cd $SLURM_SUBMIT_DIR
 
-
-#cd $SLURM_SUBMIT_DIR
-
-#total amount of papers that our program will run on
-total_paper_querying=1000
-total_DBLP_papers=6649168
-
-NBJOBS=1
+#total amount of papers that our DBLP will build to to 6649168
+total_paper_querying=6649168
 
 #this is the paper that we will start running our program on
 start_paper=200
 
+#paper that we will end at
+end_paper=226
+
 #note the number of tasks per node is set as the partitions we have
-#partitions=$SLURM_CPUS_ON_NODE
-partitions=4
+partitions=$SLURM_CPUS_ON_NODE
 
-divided_work=$((total_paper_querying / partitions))
+divided_work=$(((end_paper-start_paper) / partitions))
 
-echo "Total Paper Querying: $total_paper_querying"
+echo "DBLP Hashtable Size: $total_paper_querying"
 echo "Partitions: $partitions"
-echo "Divided Work: $divided_work"
+echo "Divided Work/Partition: $divided_work"
+echo "Start Paper: $start_paper"
+echo "End Paper: $end_paper"
+echo ""
 
 start_values=()
 end_values=()
 
-for i in $(seq 0 $partitions); do
+for i in $(seq 0 $((partitions-1))); do
     start_values+=($((start_paper + $divided_work * $i)))
     end_values+=($((start_paper + $divided_work * ($i + 1))))
 done
 
-end_values[-1]=$((end_values[-1] + total_paper_querying - (divided_work * partitions)))
+end_values[-1]=$end_paper
 
-parallel --jobs=${NBJOBS} --link ${PYTHON} matchingScript.py --paperLimit {1} --start {2} --end {3} --fileName testing_parallel_matching_script ::: "$total_DBLP_papers" ::: "${start_values[@]}" ::: "${end_values[@]}"
+parallel --link python matchingScript.py --paperLimit {1} --start {2} --end {3} --fileName testing_parallel_matching_script ::: "$total_paper_querying" ::: "${start_values[@]}" ::: "${end_values[@]}"
 echo ""
 echo "======================================================"
 echo "End Time : $(date)"
