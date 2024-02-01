@@ -32,6 +32,7 @@ def build_dblp_hash_table(k, paper_limit, chosen_probability, repeating_mers_rem
 
     start_time_build_hashmap = time.time()
     file_path_dblp = 'dblp.xml.gz'
+    print(f"Building DBLP hash table for k={k}")
     parse_DBLP_file(file_path_dblp, dblp_callbacks,paper_limit,0)
     print(f"DBLP hash table built for k={k}")
     end_time_build_hashmap = time.time()

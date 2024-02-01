@@ -6,8 +6,9 @@ def perform_and_write_results(k_value, paper_limit, selected_dblp_papers, dblp_m
 
 def parallelScript():
     k_value = 3
-    paper_limit = 10000000000000
-    chosen_probability = 0.002
+    paper_limit = 6649168
+    print("Paper Limit For Hashtable Set To: ",paper_limit)
+    chosen_probability = 0
     repeating_mers_remove = 0
     num_removed_kmers = [0, 10, 20, 50]
     levenshtein_candidates = 10

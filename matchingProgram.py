@@ -20,7 +20,7 @@ def build_dblp_hash_table(k, paper_limit, repeating_mers_remove):
     # used to create a hashmap of kmer repeating frequency
     repeat_kmer_hashmap = {}
     
-    arr_builder = lambda current_paper : mer_builder(current_paper.title, 3, False, False)
+    arr_builder = lambda current_paper : mer_builder(current_paper.title, k, False, False)
 
     # build the mer_hash table for DBLP
     dblp_callbacks = [
@@ -52,7 +52,7 @@ def matching_process(k_value, dblp_mer_hash, num_removed_kmers, levenshtein_cand
     
 
     start_time_query = time.time()
-    query_result = query_selector(candidateTitle, dblp_mer_hash, mer_builder(candidateTitle, 3, False, False))
+    query_result = query_selector(candidateTitle, dblp_mer_hash, mer_builder(candidateTitle, k_value, False, False))
     top_matches = top_candidates_levenshtein(query_result, levenshtein_candidates, candidateTitle, paper_details)
     end_time_query = time.time()
     query_time = end_time_query - start_time_query
