@@ -21,8 +21,10 @@ builds hashtable to hour dblp k-mer value and then ids with that k-mer
 @param: paper_limit - paper value that we want to go up to in building our hashmap around
 
 @param: repeating_mers_remove - number of most frequently repeating k-mers we want removed
+
+@param: top_mers_remove - removes the most frequent k-mer values in hashmap
 '''
-def build_dblp_hash_table(k, paper_limit, repeating_mers_remove):
+def build_dblp_hash_table(k, paper_limit, repeating_mers_remove, top_mers_remove):
     # create DBLP hashmap
     dblp_mer_hash = {}
     global selected_dblp_papers
@@ -48,13 +50,12 @@ def build_dblp_hash_table(k, paper_limit, repeating_mers_remove):
     end_time_build_hashmap = time.time()
     hashmap_build_time = end_time_build_hashmap - start_time_build_hashmap
     dblp_mer_hash = filter_and_remove_kmers(repeat_kmer_hashmap, dblp_mer_hash, repeating_mers_remove)
+    dblp_mer_hash = remove_top_k_mers(dblp_mer_hash, top_mers_remove)
         
     return dblp_mer_hash, paper_details, hashmap_build_time
 
 
 
-successful_candidates= 0
-total_candidates = 0
 
 '''
 the candidate matching process taking place 
@@ -75,6 +76,8 @@ the candidate matching process taking place
 
 @param: candidateTitle - title of the paper going through the matching process
 '''
+successful_candidates= 0
+total_candidates = 0
 def matching_process(k_value, dblp_mer_hash, num_removed_kmers, levenshtein_candidates, paper_details,hashmap_build_time,candidateTitle):
         
     global successful_candidates, total_candidates
@@ -102,10 +105,10 @@ def matching_process(k_value, dblp_mer_hash, num_removed_kmers, levenshtein_cand
 
    
     if candidateTitle == best_match_title:
-        trial_results.append((k_value, num_removed_kmers, candidateTitle, best_match_title, second_best_match_title, query_time, ratio, hashmap_build_time, 'Match',query_time,'citation'))
+        trial_results.append((k_value, num_removed_kmers, candidateTitle, best_match_title, second_best_match_title, ratio, hashmap_build_time, 'Match',query_time,'citation'))
         successful_candidates +=1 
     else:
-        trial_results.append((k_value, num_removed_kmers, candidateTitle, best_match_title, second_best_match_title, query_time, ratio, hashmap_build_time, 'Not Match',query_time,'citation'))
+        trial_results.append((k_value, num_removed_kmers, candidateTitle, best_match_title, second_best_match_title, ratio, hashmap_build_time, 'Not Match',query_time,'citation'))
     
     total_candidates += 1
 
@@ -127,7 +130,7 @@ writes to a csv file containing information about matching_process
 def csv_writer(results, file_name):
     # Write results to a CSV file
     with open(file_name, 'w', newline='', encoding='utf-8') as csvfile:
-        fieldnames = ['k', 'num_removed_kmers', 'candidate_paper_title', 'best_candidate_paper_title', '2nd_best_candidate_paper_title', 'query_time', 'ratio', 'hashmap_build_time','match','query_time','citation']
+        fieldnames = ['k', 'num_removed_kmers', 'candidate_paper_title', 'best_candidate_paper_title', '2nd_best_candidate_paper_title', 'ratio', 'hashmap_build_time','match','query_time','citation']
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()
 
@@ -141,11 +144,10 @@ def csv_writer(results, file_name):
                 'candidate_paper_title': result[2],
                 'best_candidate_paper_title': result[3],
                 '2nd_best_candidate_paper_title': result[4],
-                'query_time': result[5],
                 'ratio': result[6],
                 'hashmap_build_time': result[7],
                 'match': result[8],
-                'query_time': result[9],
+                'average_query_time': result[9],
                 'citation': result[10]
             })
     
@@ -154,6 +156,7 @@ def csv_writer(results, file_name):
                 matching_candidates += 1
             total_candidates += 1
 
+        
         print("Candidates with a match :",matching_candidates)
         print("Total candidates :",total_candidates)
 
@@ -163,7 +166,7 @@ def csv_writer(results, file_name):
 '''
 prints histogram of the average accuracy and query time of results from the matching process
 
-@param: fileName - file name we want our histogram to print out to 
+@param: fileName - file we want to pass in to have histogram built after, should normally come from csv_writer
 
 @param: average_accuracy_boolean - true if we ant to see accuracy histogram false otherwise
 
