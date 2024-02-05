@@ -1,0 +1,79 @@
+======================================================
+Start Time : Fri Feb  2 14:03:47 EST 2024
+Submit Dir : /users/dspradl1/theAdvisor/LargeScaleEntityMatchingForTheAdvisor
+Job ID/Name : 6882341 / theAdvisor
+Num Tasks : 1 total [1 nodes @ 1 CPUs/node]
+======================================================
+
+DBLP Hashtable Size: 6649168
+Partitions: 1
+Divided Work/Partition: 50
+Start Paper: 200
+End Paper: 250
+k-mer: 3
+Repeating k-mer Remove: 0
+Top k-mer Remove: 50
+
+DBLP hash table built for k=3
+200 250
+Candidates with a match : 0
+Total candidates : 51
+Matching percentage:  0.0
+
+======================================================
+End Time : Fri Feb  2 14:24:58 EST 2024
+======================================================
+DBLP Hashtable Size: 6649168
+Partitions: 1
+Divided Work/Partition: 50
+Start Paper: 200
+End Paper: 250
+k-mer: 3
+Repeating k-mer Remove: 0
+Top k-mer Remove: 500
+
+DBLP hash table built for k=3
+200 250
+Candidates with a match : 0
+Total candidates : 51
+Matching percentage:  0.0
+
+======================================================
+End Time : Fri Feb  2 14:39:46 EST 2024
+======================================================
+DBLP Hashtable Size: 6649168
+Partitions: 1
+Divided Work/Partition: 50
+Start Paper: 200
+End Paper: 250
+k-mer: 3
+Repeating k-mer Remove: 0
+Top k-mer Remove: 1000
+
+DBLP hash table built for k=3
+200 250
+Candidates with a match : 0
+Total candidates : 51
+Matching percentage:  0.0
+
+======================================================
+End Time : Fri Feb  2 14:52:49 EST 2024
+======================================================
+DBLP Hashtable Size: 6649168
+Partitions: 1
+Divided Work/Partition: 50
+Start Paper: 200
+End Paper: 250
+k-mer: 3
+Repeating k-mer Remove: 0
+Top k-mer Remove: 5000
+
+DBLP hash table built for k=3
+200 250
+Candidates with a match : 0
+Total candidates : 51
+Matching percentage:  0.0
+
+======================================================
+End Time : Fri Feb  2 15:05:04 EST 2024
+======================================================

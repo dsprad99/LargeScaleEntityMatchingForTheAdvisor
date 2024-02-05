@@ -3,7 +3,7 @@ import xml.etree.ElementTree as ET
 from Callback import Callback
 import sys
 
-class Paper: 
+class Paper:
     def __init__(self):
         self.paper_id = None
         self.author = None
@@ -16,7 +16,26 @@ class Paper:
         self.citation_count = None
         self.file_source = None
 
+DBLP_line_count_freq=-1
 
+'''
+@brief: used to parse through DBLP and MAG datasets. DBLP being in XML format and MAG being in txt but uses CSV
+
+@author: Davis Spradling
+'''
+
+'''
+used to parse through DBLP
+
+@param: file_path - file path to access DBLP
+
+@param: callback - methods you want to be executed everytime a paper is parsed
+
+@param: count_to - paper number you want to quit performing callbacks on
+
+@param: start_paper - paper to start performing callbacks on
+'''
+        
 def parse_DBLP_file(file_path,callback,count_to,start_paper):
     current_paper = None
     with gzip.open(file_path, 'rt', encoding='utf-8') as gz_file:
@@ -27,9 +46,17 @@ def parse_DBLP_file(file_path,callback,count_to,start_paper):
         #help us keep track of if we are inside a paper currently
         inside_paper = False
         for current_line in gz_file:
+
             #if count_line % 15000 == 0:
              #   print (f"DBLP line {count_line}")
               #  sys.stdout.flush()
+            if DBLP_line_count_freq > 0:
+                if count_line % DBLP_line_count_freq == 0:
+                    print (f"DBLP line {count_line}")
+                    sys.stdout.flush()
+            #if count_line % 15000 == 0:
+             
+              
             if i > count_to:
                 break
 
@@ -48,7 +75,7 @@ def parse_DBLP_file(file_path,callback,count_to,start_paper):
 
                         i+=1
 
-                
+
                 #check for an opening tag to make a new Paper object
                 if '<article' in current_line or '<inproceedings' in current_line or '<incollection' in current_line or '<book' in current_line:
                     if not inside_paper:
@@ -56,7 +83,7 @@ def parse_DBLP_file(file_path,callback,count_to,start_paper):
                         current_paper.file_source = "DBLP"
                         inside_paper = True
 
-                
+
 
                 if current_paper:
                     if '<author>' in current_line:
@@ -67,8 +94,8 @@ def parse_DBLP_file(file_path,callback,count_to,start_paper):
                         current_paper.pages = current_line.replace('<pages>', '').replace('</pages>', '').strip()
                     elif '<ee' in current_line:
                         doi_value = current_line.replace('<ee', '').replace('</ee>', '').strip()
-                        doi_value = doi_value.replace('https://doi.org/', '')  
-                        current_paper.doi = doi_value 
+                        doi_value = doi_value.replace('https://doi.org/', '')
+                        current_paper.doi = doi_value
                     elif '<title>' in current_line:
                         current_paper.title = current_line.replace('<title>', '').replace('</title>', '').strip()
                     elif '<url>' in current_line:
@@ -86,6 +113,16 @@ def parse_DBLP_file(file_path,callback,count_to,start_paper):
 
     return i
 
+
+'''
+used to parse through MAG
+
+@param: callback - methods you want to be executed everytime a paper is parsed
+
+@param: count_to - paper number you want to quit performing callbacks on
+
+@param: start_line - paper to start performing callbacks on
+'''
 
 def parse_MAG_file(callback,start_line, count_to):
     file_path = 'Papers.txt.gz'
@@ -115,7 +152,3 @@ def parse_MAG_file(callback,start_line, count_to):
                 for fnction in callback:
                         fnction(current_paper)
     return line_counter
-    
-
-
-

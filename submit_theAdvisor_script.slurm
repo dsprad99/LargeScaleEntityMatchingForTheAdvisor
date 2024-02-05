@@ -24,10 +24,19 @@ total_paper_querying=6649168
 start_paper=200
 
 #paper that we will end at
-end_paper=226
+end_paper=300
 
 #note the number of tasks per node is set as the partitions we have
 partitions=$SLURM_CPUS_ON_NODE
+
+#k-mer value were hashing
+k_mer=7
+
+#number of repeating mers want removed
+repeating_kmer_remove=0
+
+#number of top k-mers want removed
+top_kmer_remove=1000
 
 divided_work=$(((end_paper-start_paper) / partitions))
 
@@ -48,7 +57,7 @@ done
 
 end_values[-1]=$end_paper
 
-parallel --link python matchingScript.py --paperLimit {1} --start {2} --end {3} --fileName testing_parallel_matching_script ::: "$total_paper_querying" ::: "${start_values[@]}" ::: "${end_values[@]}"
+parallel --link python matchingScript.py --paperLimit {1} --start {2} --end {3} --kmer {4} --repeatingMersRemove {5} --topMersRemove {6} --fileName testing_parallel_matching_script ::: "$total_paper_querying" ::: "${start_values[@]}" ::: "${end_values[@]}" ::: "${k_mer}" ::: "${repeating_kmer_remove}" ::: "${top_kmer_remove}"
 echo ""
 echo "======================================================"
 echo "End Time : $(date)"
