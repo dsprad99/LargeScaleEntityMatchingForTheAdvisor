@@ -1,6 +1,6 @@
 import argparse
 from time_trial import average_histogram, perform_trials
-from Parse import parse_MAG_file
+from Parse import parse_MAG_file, parse_DBLP_file
 from matchingProgram import matching_process, build_dblp_hash_table, csv_writer, successful_candidates, total_candidates
 
 '''
@@ -39,7 +39,8 @@ callbacks = [lambda currentPaper: results.extend(matching_process(k_value, dblp_
                                                                   levenshtein_candidates, paper_details,
                                                                   hashmap_build_time, currentPaper.title))]
 
-parse_MAG_file(callbacks, start, end)
+#parse_MAG_file(callbacks, start, end)
+parse_DBLP_file(callbacks,start,end)
 
 newFileName = f"{args.fileName}_{args.start}_{args.end}_{args.kmer}_{args.topMersRemove}.csv"
 

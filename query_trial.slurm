@@ -16,27 +16,29 @@ echo ""
 
 cd $SLURM_SUBMIT_DIR
 
-# Total amount of papers that our DBLP will build to 6649168
+#total amount of papers that our DBLP will build to 6649168
 total_paper_querying=6649168
 
-# This is the paper that we will start running our program on
-start_paper=200
+#this is the paper that we will start running our program on
+start_paper=0
 
-# Paper that we will end at
-end_paper=250
+#paper that we will end at
+end_paper=50
 
-# Note the number of tasks per node is set as the partitions we have
+#note the number of tasks per node is set as the partitions we have
 partitions=$SLURM_CPUS_ON_NODE
 
-# Values to iterate over
-k_mer_values=(7)
+#values to iterate over
+k_mer_values=(3)
 repeating_kmer_remove_values=(0)
+
+#kmers that will be removed at each k-mer
 top_kmer_remove_values=(50 500 1000 5000)
 
 for k_mer in "${k_mer_values[@]}"; do
     for repeating_kmer_remove in "${repeating_kmer_remove_values[@]}"; do
         for top_kmer_remove in "${top_kmer_remove_values[@]}"; do
-            # Calculate other parameters based on these values
+            
             divided_work=$(( (end_paper - start_paper) / partitions ))
 
             echo "DBLP Hashtable Size: $total_paper_querying"
@@ -59,7 +61,7 @@ for k_mer in "${k_mer_values[@]}"; do
 
             end_values[-1]=$end_paper
 
-            parallel --link python matchingScript.py --paperLimit {1} --start {2} --end {3} --kmer {4} --repeatingMersRemove {5} --topMersRemove {6} --fileName testing_parallel_matching_script ::: "$total_paper_querying" ::: "${start_values[@]}" ::: "${end_values[@]}" ::: "$k_mer" ::: "$repeating_kmer_remove" ::: "$top_kmer_remove"
+            parallel --link python matchingScript.py --paperLimit {1} --start {2} --end {3} --kmer {4} --repeatingMersRemove {5} --topMersRemove {6} --fileName testing_parallel_matching_script_DBLP ::: "$total_paper_querying" ::: "${start_values[@]}" ::: "${end_values[@]}" ::: "$k_mer" ::: "$repeating_kmer_remove" ::: "$top_kmer_remove"
             echo ""
             echo "======================================================"
             echo "End Time : $(date)"

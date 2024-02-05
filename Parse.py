@@ -36,9 +36,9 @@ used to parse through DBLP
 @param: start_paper - paper to start performing callbacks on
 '''
         
-def parse_DBLP_file(file_path,callback,count_to,start_paper):
+def parse_DBLP_file(callback,start_paper,count_to):
     current_paper = None
-    with gzip.open(file_path, 'rt', encoding='utf-8') as gz_file:
+    with gzip.open('dblp.xml.gz', 'rt', encoding='utf-8') as gz_file:
         count_line = 0
         pap = []
         i = 0
@@ -46,19 +46,8 @@ def parse_DBLP_file(file_path,callback,count_to,start_paper):
         #help us keep track of if we are inside a paper currently
         inside_paper = False
         for current_line in gz_file:
-
-            #if count_line % 15000 == 0:
-             #   print (f"DBLP line {count_line}")
-              #  sys.stdout.flush()
-            if DBLP_line_count_freq > 0:
-                if count_line % DBLP_line_count_freq == 0:
-                    print (f"DBLP line {count_line}")
-                    sys.stdout.flush()
-            #if count_line % 15000 == 0:
-             
-              
             if i > count_to:
-                break
+                return
 
             if(start_paper<=i):
                 #check for closing tag first for cases such as
@@ -70,7 +59,7 @@ def parse_DBLP_file(file_path,callback,count_to,start_paper):
                         #for i in range(len(pap)):
                         #   print(pap[i])
                         for fnction in callback:
-                            fnction(current_paper)
+                            fnction(current_paper)			    
                         current_paper = None
 
                         i+=1

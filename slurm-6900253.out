@@ -1,79 +1,79 @@
 ======================================================
-Start Time : Fri Feb  2 14:05:08 EST 2024
+Start Time : Mon Feb  5 10:36:39 EST 2024
 Submit Dir : /users/dspradl1/theAdvisor/LargeScaleEntityMatchingForTheAdvisor
-Job ID/Name : 6882367 / theAdvisor
+Job ID/Name : 6900253 / theAdvisor
 Num Tasks : 1 total [1 nodes @ 1 CPUs/node]
 ======================================================
 
 DBLP Hashtable Size: 6649168
 Partitions: 1
 Divided Work/Partition: 50
-Start Paper: 200
-End Paper: 250
-k-mer: 7
+Start Paper: 0
+End Paper: 50
+k-mer: 3
 Repeating k-mer Remove: 0
 Top k-mer Remove: 50
 
-DBLP hash table built for k=7
-200 250
-Candidates with a match : 0
+DBLP hash table built for k=3
+0 50
+Candidates with a match : 48
 Total candidates : 51
-Matching percentage:  0.0
+Matching percentage:  0.9411764705882353
 
 ======================================================
-End Time : Fri Feb  2 14:25:19 EST 2024
+End Time : Mon Feb  5 10:51:51 EST 2024
 ======================================================
 DBLP Hashtable Size: 6649168
 Partitions: 1
 Divided Work/Partition: 50
-Start Paper: 200
-End Paper: 250
-k-mer: 7
+Start Paper: 0
+End Paper: 50
+k-mer: 3
 Repeating k-mer Remove: 0
 Top k-mer Remove: 500
 
-DBLP hash table built for k=7
-200 250
-Candidates with a match : 0
+DBLP hash table built for k=3
+0 50
+Candidates with a match : 47
 Total candidates : 51
-Matching percentage:  0.0
+Matching percentage:  0.9215686274509803
 
 ======================================================
-End Time : Fri Feb  2 14:43:54 EST 2024
+End Time : Mon Feb  5 11:03:12 EST 2024
 ======================================================
 DBLP Hashtable Size: 6649168
 Partitions: 1
 Divided Work/Partition: 50
-Start Paper: 200
-End Paper: 250
-k-mer: 7
+Start Paper: 0
+End Paper: 50
+k-mer: 3
 Repeating k-mer Remove: 0
 Top k-mer Remove: 1000
 
-DBLP hash table built for k=7
-200 250
-Candidates with a match : 0
+DBLP hash table built for k=3
+0 50
+Candidates with a match : 44
 Total candidates : 51
-Matching percentage:  0.0
+Matching percentage:  0.8627450980392157
 
 ======================================================
-End Time : Fri Feb  2 15:02:07 EST 2024
+End Time : Mon Feb  5 11:14:09 EST 2024
 ======================================================
 DBLP Hashtable Size: 6649168
 Partitions: 1
 Divided Work/Partition: 50
-Start Paper: 200
-End Paper: 250
-k-mer: 7
+Start Paper: 0
+End Paper: 50
+k-mer: 3
 Repeating k-mer Remove: 0
 Top k-mer Remove: 5000
 
-DBLP hash table built for k=7
-200 250
-Candidates with a match : 0
+DBLP hash table built for k=3
+0 50
+Candidates with a match : 35
 Total candidates : 51
-Matching percentage:  0.0
+Matching percentage:  0.6862745098039216
 
 ======================================================
-End Time : Fri Feb  2 15:18:57 EST 2024
+End Time : Mon Feb  5 11:24:58 EST 2024
 ======================================================
