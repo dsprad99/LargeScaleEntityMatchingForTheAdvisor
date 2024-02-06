@@ -20,7 +20,9 @@ cd $SLURM_SUBMIT_DIR
 #total amount of papers that our DBLP will build to to 6649168
 total_paper_querying=6649168
 
-#this is the paper that we will start running our program on
+
+#this is the paper that we will start querying our program 
+#if querying DBLP recommended that you start from 0 due to parsing in XML format
 start_paper=200
 
 #paper that we will end at
@@ -37,6 +39,9 @@ repeating_kmer_remove=0
 
 #number of top k-mers want removed
 top_kmer_remove=1000
+
+#pass in 0 to query DBLP and 1 for MAG
+dblp_mag_query=1
 
 divided_work=$(((end_paper-start_paper) / partitions))
 
@@ -57,7 +62,8 @@ done
 
 end_values[-1]=$end_paper
 
-parallel --link python matchingScript.py --paperLimit {1} --start {2} --end {3} --kmer {4} --repeatingMersRemove {5} --topMersRemove {6} --fileName testing_parallel_matching_script ::: "$total_paper_querying" ::: "${start_values[@]}" ::: "${end_values[@]}" ::: "${k_mer}" ::: "${repeating_kmer_remove}" ::: "${top_kmer_remove}"
+parallel --link python matchingScript.py --paperLimit {1} --start {2} --end {3} --kmer {4} --repeatingMersRemove {5} --topMersRemove {6} --dblpMagQuery {7} --fileName testing_parallel_matching_script ::: "$total_paper_querying" ::: "${start_values[@]}" ::: "${end_values[@]}" ::: "$k_mer" ::: "$repeating_kmer_remove" ::: "$top_kmer_remove" ::: "$dblp_mag_query"
+
 echo ""
 echo "======================================================"
 echo "End Time : $(date)"

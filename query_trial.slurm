@@ -17,9 +17,11 @@ echo ""
 cd $SLURM_SUBMIT_DIR
 
 #total amount of papers that our DBLP will build to 6649168
-total_paper_querying=6649168
+total_paper_querying=664
 
 #this is the paper that we will start running our program on
+#due to the fact that DBLP is in XML format rather then CSV it 
+#is highly suggested if querying DBLP to start with 0 for simplicity and accuracy
 start_paper=0
 
 #paper that we will end at
@@ -34,6 +36,9 @@ repeating_kmer_remove_values=(0)
 
 #kmers that will be removed at each k-mer
 top_kmer_remove_values=(50 500 1000 5000)
+
+#set value to 0 query for DBLP and 1 to query for MAG
+dblp_mag_query=0
 
 for k_mer in "${k_mer_values[@]}"; do
     for repeating_kmer_remove in "${repeating_kmer_remove_values[@]}"; do
@@ -61,7 +66,7 @@ for k_mer in "${k_mer_values[@]}"; do
 
             end_values[-1]=$end_paper
 
-            parallel --link python matchingScript.py --paperLimit {1} --start {2} --end {3} --kmer {4} --repeatingMersRemove {5} --topMersRemove {6} --fileName testing_parallel_matching_script_DBLP ::: "$total_paper_querying" ::: "${start_values[@]}" ::: "${end_values[@]}" ::: "$k_mer" ::: "$repeating_kmer_remove" ::: "$top_kmer_remove"
+            parallel --link python matchingScript.py --paperLimit {1} --start {2} --end {3} --kmer {4} --repeatingMersRemove {5} --topMersRemove {6} --dblpMagQuery {7} --fileName testing_parallel_matching_script ::: "$total_paper_querying" ::: "${start_values[@]}" ::: "${end_values[@]}" ::: "$k_mer" ::: "$repeating_kmer_remove" ::: "$top_kmer_remove" ::: "$dblp_mag_query"
             echo ""
             echo "======================================================"
             echo "End Time : $(date)"

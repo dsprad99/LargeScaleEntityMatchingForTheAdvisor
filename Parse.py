@@ -43,7 +43,7 @@ def parse_DBLP_file(callback,start_paper,count_to):
 
     if(start_paper>=count_to):
         print("Error: Start paper is greater then or equal to end paper. Adjust so that start paper is less then the end paper.")
-        sys.stdout.flush()
+        sys.exit(1)
 
     with gzip.open('dblp.xml.gz', 'rt', encoding='utf-8') as gz_file:
         count_line = 0
@@ -122,7 +122,7 @@ def parse_MAG_file(callback,start_line, count_to):
 
     if(start_line>=count_to):
         print("Error: Start paper is greater then or equal to end paper. Adjust so that start paper is less then the end paper.")
-        sys.stdout.flush()
+        sys.exit(1)
 
     with gzip.open(file_path, 'rt', encoding='utf-8') as file:
         for line in file:

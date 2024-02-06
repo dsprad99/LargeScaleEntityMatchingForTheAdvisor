@@ -2,6 +2,7 @@ import argparse
 from time_trial import average_histogram, perform_trials
 from Parse import parse_MAG_file, parse_DBLP_file
 from matchingProgram import matching_process, build_dblp_hash_table, csv_writer, successful_candidates, total_candidates
+import sys
 
 '''
 script to execute matchingProgram used to paper querying
@@ -16,6 +17,7 @@ parser.add_argument('--fileName', type=str, help='CSV File Name')
 parser.add_argument('--kmer', type=int, help='K-Mer value being queried')
 parser.add_argument('--repeatingMersRemove', type=int, help='Mers repeated multiple times in query removed')
 parser.add_argument('--topMersRemove', type=int, help='Top (most frequent) mers removed')
+parser.add_argument('--dblpMagQuery', type=int, help='Choose to query DBLP or MAG')
 
 args = parser.parse_args()
 
@@ -30,6 +32,7 @@ levenshtein_candidates = 10
 results = []
 start = args.start
 end = args.end
+chooseDBLPMag = args.dblpMagQuery
 
 dblp_mer_hash, paper_details, hashmap_build_time = build_dblp_hash_table(k_value, paper_limit, repeating_mers_remove,top_mers_remove)
 
@@ -39,10 +42,18 @@ callbacks = [lambda currentPaper: results.extend(matching_process(k_value, dblp_
                                                                   levenshtein_candidates, paper_details,
                                                                   hashmap_build_time, currentPaper.title))]
 
-#parse_MAG_file(callbacks, start, end)
-parse_DBLP_file(callbacks,start,end)
 
-newFileName = f"{args.fileName}_{args.start}_{args.end}_{args.kmer}_{args.topMersRemove}.csv"
+if(chooseDBLPMag==0):
+	parse_DBLP_file(callbacks,start,end)
+	newFileName = f"{args.fileName}_dblp_{args.start}_{args.end}_{args.kmer}_{args.topMersRemove}.csv"
+
+elif(chooseDBLPMag==1): 
+	parse_MAG_file(callbacks, start, end)
+	newFileName = f"{args.fileName}_mag_{args.start}_{args.end}_{args.kmer}_{args.topMersRemove}.csv"
+
+else:
+	print("Ivalid value passed to chooseDBLPMag,to query DBLP please choose 0 for DBLP and 1 for MAG.")
+	sys.exit(1)
 
 csv_writer(results, newFileName)
 

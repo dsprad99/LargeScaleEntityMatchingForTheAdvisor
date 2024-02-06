@@ -1,0 +1,24 @@
+======================================================
+Start Time : Tue Feb  6 12:39:42 EST 2024
+Submit Dir : /users/dspradl1/theAdvisor/LargeScaleEntityMatchingForTheAdvisor
+Job ID/Name : 6934862 / theAdvisor
+Num Tasks : 1 total [1 nodes @ 1 CPUs/node]
+======================================================
+
+DBLP Hashtable Size: 664
+Partitions: 1
+Divided Work/Partition: 100
+Start Paper: 200
+End Paper: 300
+
+DBLP hash table built for k=7
+200 300
+Ivalid value passed to chooseDBLPMag,to query DBLP please choose 0 for DBLP and 1 for MAG.
+Traceback (most recent call last):
+  File "/users/dspradl1/theAdvisor/LargeScaleEntityMatchingForTheAdvisor/matchingScript.py", line 55, in <module>
+    sys.exit(1)
+NameError: name 'sys' is not defined
+
+======================================================
+End Time : Tue Feb  6 12:39:46 EST 2024
+======================================================

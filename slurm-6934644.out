@@ -1,0 +1,28 @@
+======================================================
+Start Time : Tue Feb  6 12:34:42 EST 2024
+Submit Dir : /users/dspradl1/theAdvisor/LargeScaleEntityMatchingForTheAdvisor
+Job ID/Name : 6934644 / theAdvisor
+Num Tasks : 1 total [1 nodes @ 1 CPUs/node]
+======================================================
+
+DBLP Hashtable Size: 664
+Partitions: 1
+Divided Work/Partition: -100
+Start Paper: 300
+End Paper: 200
+
+DBLP hash table built for k=7
+300 200
+Error: Start paper is greater then or equal to end paper. Adjust so that start paper is less then the end paper.
+Candidates with a match : 0
+Total candidates : 0
+Traceback (most recent call last):
+  File "/users/dspradl1/theAdvisor/LargeScaleEntityMatchingForTheAdvisor/matchingScript.py", line 57, in <module>
+    csv_writer(results, newFileName)
+  File "/users/dspradl1/theAdvisor/LargeScaleEntityMatchingForTheAdvisor/matchingProgram.py", line 163, in csv_writer
+    print("Matching percentage: ",matching_candidates/total_candidates)
+ZeroDivisionError: division by zero
+
+======================================================
+End Time : Tue Feb  6 12:34:44 EST 2024
+======================================================
