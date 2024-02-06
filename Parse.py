@@ -34,10 +34,17 @@ used to parse through DBLP
 @param: count_to - paper number you want to quit performing callbacks on
 
 @param: start_paper - paper to start performing callbacks on
+
+since values are being parsed using xml it is suggested to make sure that you pass in 0 as the start_paper
 '''
         
 def parse_DBLP_file(callback,start_paper,count_to):
     current_paper = None
+
+    if(start_paper>=count_to):
+        print("Error: Start paper is greater then or equal to end paper. Adjust so that start paper is less then the end paper.")
+        sys.stdout.flush()
+
     with gzip.open('dblp.xml.gz', 'rt', encoding='utf-8') as gz_file:
         count_line = 0
         pap = []
@@ -48,7 +55,6 @@ def parse_DBLP_file(callback,start_paper,count_to):
         for current_line in gz_file:
             if i > count_to:
                 return
-
             if(start_paper<=i):
                 #check for closing tag first for cases such as
                 #</incollection><incollection mdate="2017-07-12" key="reference/cn/Prinz14" publtype="encyclopedia">
@@ -59,11 +65,10 @@ def parse_DBLP_file(callback,start_paper,count_to):
                         #for i in range(len(pap)):
                         #   print(pap[i])
                         for fnction in callback:
-                            fnction(current_paper)			    
+                            fnction(current_paper)
                         current_paper = None
 
                         i+=1
-
 
                 #check for an opening tag to make a new Paper object
                 if '<article' in current_line or '<inproceedings' in current_line or '<incollection' in current_line or '<book' in current_line:
@@ -71,8 +76,6 @@ def parse_DBLP_file(callback,start_paper,count_to):
                         current_paper = Paper()
                         current_paper.file_source = "DBLP"
                         inside_paper = True
-
-
 
                 if current_paper:
                     if '<author>' in current_line:
@@ -116,6 +119,11 @@ used to parse through MAG
 def parse_MAG_file(callback,start_line, count_to):
     file_path = 'Papers.txt.gz'
     line_counter = 0
+
+    if(start_line>=count_to):
+        print("Error: Start paper is greater then or equal to end paper. Adjust so that start paper is less then the end paper.")
+        sys.stdout.flush()
+
     with gzip.open(file_path, 'rt', encoding='utf-8') as file:
         for line in file:
             line_counter += 1
@@ -141,3 +149,4 @@ def parse_MAG_file(callback,start_line, count_to):
                 for fnction in callback:
                         fnction(current_paper)
     return line_counter
+
