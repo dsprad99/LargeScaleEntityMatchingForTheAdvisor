@@ -44,8 +44,7 @@ def build_dblp_hash_table(k, paper_limit, repeating_mers_remove, top_mers_remove
     ]
 
     start_time_build_hashmap = time.time()
-    file_path_dblp = 'dblp.xml.gz'
-    parse_DBLP_file(dblp_callbacks,0,paper_limit)
+    parse_DBLP_file( dblp_callbacks,0,paper_limit)
     print(f"DBLP hash table built for k={k}")
     end_time_build_hashmap = time.time()
     hashmap_build_time = end_time_build_hashmap - start_time_build_hashmap
@@ -84,14 +83,39 @@ def matching_process(k_value, dblp_mer_hash, num_removed_kmers, levenshtein_cand
     trial_results = []
     
 
-    start_time_query = time.time()
-    query_result = query_selector(dblp_mer_hash, mer_builder(candidateTitle, k_value, False, False))
-    top_matches = top_candidates_levenshtein(query_result, levenshtein_candidates, candidateTitle, paper_details)
-    end_time_query = time.time()
-    query_time = end_time_query - start_time_query
-    
+    start_total_time_query = time.time()
 
-    if len(top_matches) >= 2:
+    start_time_query_phase1 = time.time()
+    query_result = query_selector(dblp_mer_hash, mer_builder(candidateTitle, k_value, False, False))
+    end_time_query_phase2 = time.time()
+    query_time_phase1 = end_time_query_phase2 - start_time_query_phase1
+
+    #extract the highest int value from the values part of the dictionary to give us the highest frequency match
+    if(query_result.values()):
+        highest_frequency = max(query_result.values())    
+    else:
+        highest_frequency = 0
+        
+    start_time_query_phase2 = time.time()
+
+    #if highest frequency k-mer hashing candidate is 60% of the length of the candidate title we will go ahead with levenshtein
+    if((highest_frequency/len(candidateTitle))>.60):
+        top_matches = top_candidates_levenshtein(query_result, levenshtein_candidates, candidateTitle, paper_details)
+    else:
+        #need to at least initialize the value so we don't throw an error below when checking the len of top_matches
+        top_matches=[]
+
+    end_time_query_phase2 = time.time()
+    query_time_phase2 =  end_time_query_phase2 - start_time_query_phase2
+    
+    end_total_time_query = time.time()
+
+    query_time_total = end_total_time_query - start_total_time_query
+
+
+    #here we make sure that we have two candidates to compare and our best candidate has a levenshtein ration of at least .9
+    #in the 2d array the indexes are as follows [id, frequency, levenshtein ratio, paper title]
+    if len(top_matches) >= 2 and top_matches[0][2]>.9:
         ratio = top_matches[0][1], "-", top_matches[1][1]
         best_match_id = top_matches[0][0]
         second_best_match_id = top_matches[1][0]
@@ -105,10 +129,10 @@ def matching_process(k_value, dblp_mer_hash, num_removed_kmers, levenshtein_cand
 
    
     if candidateTitle == best_match_title:
-        trial_results.append((k_value, num_removed_kmers, candidateTitle, best_match_title, second_best_match_title, ratio, hashmap_build_time, 'Match',query_time,'citation'))
+        trial_results.append((k_value, num_removed_kmers, candidateTitle, best_match_title, second_best_match_title, ratio, hashmap_build_time, 'Match',query_time_phase1,query_time_phase2,query_time_total,'citation'))
         successful_candidates +=1 
     else:
-        trial_results.append((k_value, num_removed_kmers, candidateTitle, best_match_title, second_best_match_title, ratio, hashmap_build_time, 'Not Match',query_time,'citation'))
+        trial_results.append((k_value, num_removed_kmers, candidateTitle, best_match_title, second_best_match_title, ratio, hashmap_build_time, 'Not Match',query_time_phase1,query_time_phase2,query_time_total,'citation'))
     
     total_candidates += 1
 
@@ -130,7 +154,7 @@ writes to a csv file containing information about matching_process
 def csv_writer(results, file_name):
     # Write results to a CSV file
     with open(file_name, 'w', newline='', encoding='utf-8') as csvfile:
-        fieldnames = ['k', 'num_removed_kmers', 'candidate_paper_title', 'best_candidate_paper_title', '2nd_best_candidate_paper_title', 'ratio', 'hashmap_build_time','match','average_query_time','citation']
+        fieldnames = ['k', 'num_removed_kmers', 'candidate_paper_title', 'best_candidate_paper_title', '2nd_best_candidate_paper_title', 'ratio', 'hashmap_build_time','match','average_query_time_phase1','average_query_time_phase2','average_query_time_total','citation']
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()
 
@@ -147,8 +171,10 @@ def csv_writer(results, file_name):
                 'ratio': result[5],
                 'hashmap_build_time': result[6],
                 'match': result[7],
-                'average_query_time': result[8],
-                'citation': result[9]
+                'average_query_time_phase1': result[8],
+                'average_query_time_phase2': result[9],
+                'average_query_time_total': result[10],
+                'citation': result[11]
             })
     
         
@@ -156,6 +182,7 @@ def csv_writer(results, file_name):
                 matching_candidates += 1
             total_candidates += 1
 
+        csvfile.write(f"\nMatching percentage: {matching_candidates/total_candidates:.2%}")
         
         print("Candidates with a match :",matching_candidates)
         print("Total candidates :",total_candidates)
@@ -255,5 +282,4 @@ def average_histogram(fileName, average_accuracy_boolean, average_query_time_boo
             plt.show()
 
 
-
-        
+    
