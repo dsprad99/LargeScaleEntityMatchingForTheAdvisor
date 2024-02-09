@@ -1,0 +1,54 @@
+k,num_removed_kmers,candidate_paper_title,best_candidate_paper_title,2nd_best_candidate_paper_title,ratio,hashmap_build_time,match,average_query_time_phase1,average_query_time_phase2,average_query_time_total,citation
+3,1000,Spectre Attacks: Exploiting Speculative Execution.,None,None,0,577.5753066539764,Not Match,0.38593316078186035,3.814697265625e-06,0.3905906677246094,citation
+3,1000,Meltdown,Meltdown,Reinforcing Meltdown Attack by Using a Return Stack Buffer.,"(6, '-', 6)",577.5753066539764,Match,0.03530764579772949,0.046701908111572266,0.08285212516784668,citation
+3,1000,Computer Science Curricula 2013,None,None,0,577.5753066539764,Not Match,0.17165303230285645,2.6226043701171875e-06,0.1748042106628418,citation
+3,1000,An Evaluation of Object-Oriented DBMS Developments: 1994 Edition.,None,None,0,577.5753066539764,Not Match,0.3960390090942383,3.337860107421875e-06,0.4018404483795166,citation
+3,1000,DARWIN: On the Incremental Migration of Legacy Information Systems,None,None,0,577.5753066539764,Not Match,0.317549467086792,4.0531158447265625e-06,0.3235757350921631,citation
+3,1000,"Integrating Heterogeneous, Autonomous, Distributed Applications Using the DOM Prototype.",None,None,0,577.5753066539764,Not Match,0.5304601192474365,2.6226043701171875e-06,0.5369694232940674,citation
+3,1000,Object Model Capabilities For Distributed Object Management.,None,None,0,577.5753066539764,Not Match,0.34520697593688965,3.5762786865234375e-06,0.34940266609191895,citation
+3,1000,Integrating Object-Oriented Applications and Middleware with Relational Databases.,None,None,0,577.5753066539764,Not Match,0.3486196994781494,3.337860107421875e-06,0.3545382022857666,citation
+3,1000,Towards a Transaction Management System for DOM.,None,None,0,577.5753066539764,Not Match,0.1786501407623291,2.1457672119140625e-06,0.18101859092712402,citation
+3,1000,A 'RISC' Object Model for Object System Interoperation: Concepts and Applications.,None,None,0,577.5753066539764,Not Match,0.4943079948425293,3.337860107421875e-06,0.5015215873718262,citation
+3,1000,MetaObject Protocol Concepts for a RISC Object Model.,None,None,0,577.5753066539764,Not Match,0.4912996292114258,3.337860107421875e-06,0.4991750717163086,citation
+3,1000,Object Data Language Facilities for Multimedia Data Types.,None,None,0,577.5753066539764,Not Match,0.4271700382232666,3.814697265625e-06,0.43369150161743164,citation
+3,1000,Object Data Model Facilities for Multimedia Data Types.,None,None,0,577.5753066539764,Not Match,0.34947633743286133,3.814697265625e-06,0.3558318614959717,citation
+3,1000,Distributed Object Management Technology.,None,None,0,577.5753066539764,Not Match,0.38718295097351074,3.814697265625e-06,0.3930199146270752,citation
+3,1000,Experiments with Dispatching in a Distributed Object System.,None,None,0,577.5753066539764,Not Match,0.3929424285888672,3.814697265625e-06,0.39975810050964355,citation
+3,1000,Muffin: A Distributed Database Machine,None,None,0,577.5753066539764,Not Match,0.13740873336791992,2.384185791015625e-06,0.14081144332885742,citation
+3,1000,Object Oriented DBMS as a Generalization of Relational DBMS,None,None,0,577.5753066539764,Not Match,0.27715325355529785,3.0994415283203125e-06,0.28272557258605957,citation
+3,1000,Inheritance for ADTs (revised),None,None,0,577.5753066539764,Not Match,0.03958892822265625,1.9073486328125e-06,0.04065513610839844,citation
+3,1000,Modification of User Defined Types,None,None,0,577.5753066539764,Not Match,0.24030113220214844,2.86102294921875e-06,0.244675874710083,citation
+3,1000,Object ADTs (with improvements for Value ADTs),None,None,0,577.5753066539764,Not Match,0.24190092086791992,3.337860107421875e-06,0.2463686466217041,citation
+3,1000,Unification of Value and Object ADTs,None,None,0,577.5753066539764,Not Match,0.31261372566223145,1.9073486328125e-06,0.3175628185272217,citation
+3,1000,Die Repr&auml;sentation r&auml;umlichen Wissens und die Behandlung von Einbettungsproblemen mit Quadtreedepiktionen,Die Repr&auml;sentation r&auml;umlichen Wissens und die Behandlung von Einbettungsproblemen mit Quadtreedepiktionen,"""Ich brauche das!"" - Mobile Ger&auml;te im Unternehmenseinsatz - &Uuml;bersicht &uuml;ber die Bedrohungslage und die Schutzma&szlig;nahmen f&uuml;r die Verwendung gesch&auml;ftlicher Daten auf (privaten) mobilen Ger&auml;ten.","(81, '-', 62)",577.5753066539764,Match,1.0059161186218262,0.5630767345428467,1.5816419124603271,citation
+3,1000,Algebraical Optimization of FTA-Expressions,None,None,0,577.5753066539764,Not Match,0.1432018280029297,3.0994415283203125e-06,0.14588069915771484,citation
+3,1000,Wissensrepr&auml;sentation und Maschinelles Lernen,None,None,0,577.5753066539764,Not Match,0.3490028381347656,2.6226043701171875e-06,0.355299711227417,citation
+3,1000,An Algebraic Characterization of STUF,None,None,0,577.5753066539764,Not Match,0.11698341369628906,2.1457672119140625e-06,0.11905956268310547,citation
+3,1000,A Combined Symbolic-Empirical Apprach for the Automatic Translation of Compounds,None,None,0,577.5753066539764,Not Match,0.5422029495239258,4.76837158203125e-06,0.5497703552246094,citation
+3,1000,Zur Systemarchitektur von LILOG,Zur Systemarchitektur von LILOG,Systemarchitektur - Neufassung des Werkes Architektur von Betriebssystemen.,"(17, '-', 15)",577.5753066539764,Match,0.18187785148620605,0.17030835151672363,0.3558628559112549,citation
+3,1000,Mengenorientierte Auswertung von Anfragen in der Logikprogrammiersprache PROLOG,None,None,0,577.5753066539764,Not Match,0.6933469772338867,4.76837158203125e-06,0.703819751739502,citation
+3,1000,Definite Resolution over Constraint Languages,None,None,0,577.5753066539764,Not Match,0.3153657913208008,3.337860107421875e-06,0.31993603706359863,citation
+3,1000,Dokumentation der Syntax der LILOG-Grammatik,None,None,0,577.5753066539764,Not Match,0.25734496116638184,3.5762786865234375e-06,0.26239013671875,citation
+3,1000,Cognitive Linguistics: The Processing of Spatial Concepts,None,None,0,577.5753066539764,Not Match,0.25067710876464844,3.0994415283203125e-06,0.25533080101013184,citation
+3,1000,LILOG-DB: Database Support for Knowledge-Based Systems,None,None,0,577.5753066539764,Not Match,0.4307732582092285,3.5762786865234375e-06,0.4355168342590332,citation
+3,1000,Differential Closure Computation for General Horn-Clause Queries,None,None,0,577.5753066539764,Not Match,0.43262362480163574,4.5299530029296875e-06,0.44046878814697266,citation
+3,1000,SQL/Data System for VSE: A Relational Data System for Application Development.,None,None,0,577.5753066539764,Not Match,0.29693126678466797,3.0994415283203125e-06,0.30152201652526855,citation
+3,1000,A Logical Operational Semantics of Full Prolog,None,None,0,577.5753066539764,Not Match,0.26487231254577637,4.0531158447265625e-06,0.27008724212646484,citation
+3,1000,Ein Fact Manager zur persistenten Speicherung variabel strukturierter komplexer Objekte,None,None,0,577.5753066539764,Not Match,0.7537038326263428,4.0531158447265625e-06,0.7645003795623779,citation
+3,1000,How could a good system of practical NLP look like?,None,None,0,577.5753066539764,Not Match,0.30132079124450684,3.5762786865234375e-06,0.3065662384033203,citation
+3,1000,M&ouml;glichkeiten des Einsatzes eines dreiwertigen Theorembeweisers,M&ouml;glichkeiten des Einsatzes eines dreiwertigen Theorembeweisers,M&ouml;glichkeiten des Einsatzes der Chipkarte zur Erh&ouml;hung der Sicherheit im Bildschirmtext-System.,"(41, '-', 29)",577.5753066539764,Match,0.7268712520599365,0.4640042781829834,1.201122760772705,citation
+3,1000,Attribute Inheritance Implemented on Top of a Relational Database System,None,None,0,577.5753066539764,Not Match,0.20392894744873047,3.0994415283203125e-06,0.20820212364196777,citation
+3,1000,LMT - Machine Translation Demonstration,None,None,0,577.5753066539764,Not Match,0.11982393264770508,1.9073486328125e-06,0.12232303619384766,citation
+3,1000,Implementation Aspects of a Natural Language Understanding System in a Prolog/DB Environment,None,None,0,577.5753066539764,Not Match,0.45592522621154785,4.0531158447265625e-06,0.46270179748535156,citation
+3,1000,Sort Processing in a Deductive Database System,None,None,0,577.5753066539764,Not Match,0.09372091293334961,2.86102294921875e-06,0.09625554084777832,citation
+3,1000,EFTA: A Database Retrieval Algebra for Feature Terms,None,None,0,577.5753066539764,Not Match,0.444871187210083,4.291534423828125e-06,0.4520137310028076,citation
+3,1000,Knowledge in Operation,None,None,0,577.5753066539764,Not Match,0.2605865001678467,0.14872002601623535,0.41233348846435547,citation
+3,1000,An Overview on Planning Applications in PROTOS-L,None,None,0,577.5753066539764,Not Match,0.23061227798461914,3.337860107421875e-06,0.23410320281982422,citation
+3,1000,&Uuml;ber Ans&auml;tze zur Darstellung von Konzepten und Prototypen,&Uuml;ber Ans&auml;tze zur Darstellung von Konzepten und Prototypen,&Uuml;berblick &uuml;ber Ans&auml;tze zur Modellierung von Variabilit&auml;t in Gesch&auml;ftsprozessmodellen.,"(46, '-', 50)",577.5753066539764,Match,0.5110278129577637,0.3515145778656006,0.8703155517578125,citation
+3,1000,Attributive Concept Descriptions with Unions and Complements,None,None,0,577.5753066539764,Not Match,0.3561713695526123,4.291534423828125e-06,0.36138081550598145,citation
+3,1000,Ein praktischer Algorithmus f&uuml;r die E-Unifikation,None,None,0,577.5753066539764,Not Match,0.3637378215789795,0.27202391624450684,0.641643762588501,citation
+3,1000,Simulation Sprachlichen Verstehens: Generelle Probleme bei der semantischen Interpretation der nat&uuml;rlichen Sprache,None,None,0,577.5753066539764,Not Match,0.9799389839172363,3.5762786865234375e-06,0.9911186695098877,citation
+3,1000,The Institute for Knowledge Based Systems in the IBM Germany Scientific Center,None,None,0,577.5753066539764,Not Match,0.4451932907104492,3.0994415283203125e-06,0.44991326332092285,citation
+3,1000,Konzeption und Implementierung von Gleichheit f&uuml;r einen tableau-basierten Theorem-Beweiser,None,None,0,577.5753066539764,Not Match,0.7866146564483643,3.814697265625e-06,0.7969906330108643,citation
+
+Matching percentage: 9.80%
