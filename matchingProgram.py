@@ -74,10 +74,15 @@ the candidate matching process taking place
 @param: hashmap_build_time - build time of how long it took to build DBLP hashmap
 
 @param: candidateTitle - title of the paper going through the matching process
+
+@param: levenshteinThreshold - threshold that is the perctage of candidate with the most k-mers divided by length of the paper being queried. ie. should be a float b/t 0 and 1
+
+@param: ratioThreshold - threshold that is the levenshtein ratio in order for there to be a match between a candidate and the paper being queried. ie. should be a float b/t 0 and 1
+#
 '''
 successful_candidates= 0
 total_candidates = 0
-def matching_process(k_value, dblp_mer_hash, num_removed_kmers, levenshtein_candidates, paper_details,hashmap_build_time,candidateTitle):
+def matching_process(k_value, dblp_mer_hash, num_removed_kmers, levenshtein_candidates, paper_details,hashmap_build_time,candidateTitle, levenshteinThreshold, ratioThreshold):
         
     global successful_candidates, total_candidates
     trial_results = []
@@ -99,7 +104,7 @@ def matching_process(k_value, dblp_mer_hash, num_removed_kmers, levenshtein_cand
     start_time_query_phase2 = time.time()
 
     #if highest frequency k-mer hashing candidate is 60% of the length of the candidate title we will go ahead with levenshtein
-    if((highest_frequency/len(candidateTitle))>.60):
+    if((highest_frequency/len(candidateTitle))>levenshteinThreshold):
         top_matches = top_candidates_levenshtein(query_result, levenshtein_candidates, candidateTitle, paper_details)
     else:
         #need to at least initialize the value so we don't throw an error below when checking the len of top_matches
@@ -115,7 +120,7 @@ def matching_process(k_value, dblp_mer_hash, num_removed_kmers, levenshtein_cand
 
     #here we make sure that we have two candidates to compare and our best candidate has a levenshtein ration of at least .9
     #in the 2d array the indexes are as follows [id, frequency, levenshtein ratio, paper title]
-    if len(top_matches) >= 2 and top_matches[0][2]>.9:
+    if len(top_matches) >= 2 and top_matches[0][2]>ratioThreshold:
         ratio = top_matches[0][1], "-", top_matches[1][1]
         best_match_id = top_matches[0][0]
         second_best_match_id = top_matches[1][0]
@@ -129,10 +134,10 @@ def matching_process(k_value, dblp_mer_hash, num_removed_kmers, levenshtein_cand
 
    
     if candidateTitle == best_match_title:
-        trial_results.append((k_value, num_removed_kmers, candidateTitle, best_match_title, second_best_match_title, ratio, hashmap_build_time, 'Match',query_time_phase1,query_time_phase2,query_time_total,'citation'))
+        trial_results.append((k_value, num_removed_kmers, candidateTitle, best_match_title, second_best_match_title, ratio, hashmap_build_time, 'Match',query_time_phase1,query_time_phase2,query_time_total,levenshteinThreshold,ratioThreshold,'citation'))
         successful_candidates +=1 
     else:
-        trial_results.append((k_value, num_removed_kmers, candidateTitle, best_match_title, second_best_match_title, ratio, hashmap_build_time, 'Not Match',query_time_phase1,query_time_phase2,query_time_total,'citation'))
+        trial_results.append((k_value, num_removed_kmers, candidateTitle, best_match_title, second_best_match_title, ratio, hashmap_build_time, 'Not Match',query_time_phase1,query_time_phase2,query_time_total,levenshteinThreshold,ratioThreshold,'citation'))
     
     total_candidates += 1
 
@@ -154,7 +159,7 @@ writes to a csv file containing information about matching_process
 def csv_writer(results, file_name):
     # Write results to a CSV file
     with open(file_name, 'w', newline='', encoding='utf-8') as csvfile:
-        fieldnames = ['k', 'num_removed_kmers', 'candidate_paper_title', 'best_candidate_paper_title', '2nd_best_candidate_paper_title', 'ratio', 'hashmap_build_time','match','average_query_time_phase1','average_query_time_phase2','average_query_time_total','citation']
+        fieldnames = ['k', 'num_removed_kmers', 'candidate_paper_title', 'best_candidate_paper_title', '2nd_best_candidate_paper_title', 'ratio', 'hashmap_build_time','match','average_query_time_phase1','average_query_time_phase2','average_query_time_total','levenshteinThreshold','ratioThreshold','citation']
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()
 
@@ -174,7 +179,9 @@ def csv_writer(results, file_name):
                 'average_query_time_phase1': result[8],
                 'average_query_time_phase2': result[9],
                 'average_query_time_total': result[10],
-                'citation': result[11]
+                'levenshteinThreshold': result[11],
+                'ratioThreshold': result[12],
+                'citation': result[13]
             })
     
         
@@ -280,6 +287,3 @@ def average_histogram(fileName, average_accuracy_boolean, average_query_time_boo
             plt.tight_layout()
             plt.subplots_adjust(hspace=0.5) 
             plt.show()
-
-
-    
