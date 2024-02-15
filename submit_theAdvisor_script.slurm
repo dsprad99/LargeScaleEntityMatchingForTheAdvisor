@@ -40,7 +40,7 @@ repeating_kmer_remove=0
 top_kmer_remove=1000
 
 #pass in 0 to query DBLP and 1 for MAG
-dblp_mag_query=1
+dblp_mag_query=0
 
 #number of k-mers of top candidate divided by length of title to perform levenshtein
 #should be a float between 0 and 1
@@ -69,7 +69,7 @@ done
 
 end_values[-1]=$end_paper
 
-parallel --link python matchingScript.py --paperLimit {1} --start {2} --end {3} --kmer {4} --repeatingMersRemove {5} --topMersRemove {6} --dblpMagQuery {7} --levenshteinThreshold {8} --ratioThreshold {9} --fileName testing_parallel_matching_script_threshold_70 ::: "$total_paper_querying" ::: "${start_values[@]}" ::: "${end_values[@]}" ::: "$k_mer" ::: "$repeating_kmer_remove" ::: "$top_kmer_remove" ::: "$dblp_mag_query" ::: "$levenshteinThreshold" ::: "$ratioThreshold"
+parallel --link python matchingScript.py --paperLimit {1} --start {2} --end {3} --kmer {4} --repeatingMersRemove {5} --topMersRemove {6} --dblpMagQuery {7} --levenshteinThreshold {8} --ratioThreshold {9} --fileName testing_parallel_matching_script_DBLP_threshold_70 ::: "$total_paper_querying" ::: "${start_values[@]}" ::: "${end_values[@]}" ::: "$k_mer" ::: "$repeating_kmer_remove" ::: "$top_kmer_remove" ::: "$dblp_mag_query" ::: "$levenshteinThreshold" ::: "$ratioThreshold"
 
 echo ""
 echo "======================================================"
