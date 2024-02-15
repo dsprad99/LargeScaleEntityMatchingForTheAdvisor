@@ -2,8 +2,8 @@
 #SBATCH --partition=Orion
 #SBATCH --job-name=theAdvisor
 #SBATCH --nodes=1
-#SBATCH --ntasks-per-node=1
-#SBATCH --mem=100GB
+#SBATCH --ntasks-per-node=15
+#SBATCH --mem-per-cpu=20GB
 #SBATCH --time=1:20:00
 
 
@@ -20,13 +20,12 @@ cd $SLURM_SUBMIT_DIR
 #total amount of papers that our DBLP will build to to 6649168
 total_paper_querying=6649168
 
-
 #this is the paper that we will start querying our program 
 #if querying DBLP recommended that you start from 0 due to parsing in XML format
-start_paper=200
+start_paper=0
 
 #paper that we will end at
-end_paper=300
+end_paper=150000
 
 #note the number of tasks per node is set as the partitions we have
 partitions=$SLURM_CPUS_ON_NODE
@@ -42,6 +41,14 @@ top_kmer_remove=1000
 
 #pass in 0 to query DBLP and 1 for MAG
 dblp_mag_query=1
+
+#number of k-mers of top candidate divided by length of title to perform levenshtein
+#should be a float between 0 and 1
+levenshteinThreshold=.3
+
+#ratio from levenshtein needed to be considered a match
+#should be a float between 0 and 1
+ratioThreshold=.85
 
 divided_work=$(((end_paper-start_paper) / partitions))
 
@@ -62,7 +69,7 @@ done
 
 end_values[-1]=$end_paper
 
-parallel --link python matchingScript.py --paperLimit {1} --start {2} --end {3} --kmer {4} --repeatingMersRemove {5} --topMersRemove {6} --dblpMagQuery {7} --fileName testing_parallel_matching_script ::: "$total_paper_querying" ::: "${start_values[@]}" ::: "${end_values[@]}" ::: "$k_mer" ::: "$repeating_kmer_remove" ::: "$top_kmer_remove" ::: "$dblp_mag_query"
+parallel --link python matchingScript.py --paperLimit {1} --start {2} --end {3} --kmer {4} --repeatingMersRemove {5} --topMersRemove {6} --dblpMagQuery {7} --levenshteinThreshold {8} --ratioThreshold {9} --fileName testing_parallel_matching_script_threshold_70 ::: "$total_paper_querying" ::: "${start_values[@]}" ::: "${end_values[@]}" ::: "$k_mer" ::: "$repeating_kmer_remove" ::: "$top_kmer_remove" ::: "$dblp_mag_query" ::: "$levenshteinThreshold" ::: "$ratioThreshold"
 
 echo ""
 echo "======================================================"

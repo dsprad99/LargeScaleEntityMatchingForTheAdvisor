@@ -3,6 +3,9 @@ from time_trial import average_histogram, perform_trials
 from Parse import parse_MAG_file, parse_DBLP_file
 from matchingProgram import matching_process, build_dblp_hash_table, csv_writer, successful_candidates, total_candidates
 import sys
+import os, psutil
+process = psutil.Process()
+from hashtableBuild import buildHashTable
 
 '''
 script to execute matchingProgram used to paper querying
@@ -18,6 +21,8 @@ parser.add_argument('--kmer', type=int, help='K-Mer value being queried')
 parser.add_argument('--repeatingMersRemove', type=int, help='Mers repeated multiple times in query removed')
 parser.add_argument('--topMersRemove', type=int, help='Top (most frequent) mers removed')
 parser.add_argument('--dblpMagQuery', type=int, help='Choose to query DBLP or MAG')
+parser.add_argument('--levenshteinThreshold', type=float, help='Choose K-Mer Percentage threshold to perform Levenshtein')
+parser.add_argument('--ratioThreshold', type=float, help='Choose Levenshtein ratio threshold to be considered a match')
 
 args = parser.parse_args()
 
@@ -33,14 +38,17 @@ results = []
 start = args.start
 end = args.end
 chooseDBLPMag = args.dblpMagQuery
+levenshteinThreshold = args.levenshteinThreshold
+ratioThreshold = args.ratioThreshold
 
-dblp_mer_hash, paper_details, hashmap_build_time = build_dblp_hash_table(k_value, paper_limit, repeating_mers_remove,top_mers_remove)
+dblp_mer_hash, paper_details, hashmap_build_time = buildHashTable(k_value, paper_limit, repeating_mers_remove,top_mers_remove)
 
 print(args.start,args.end)
 
 callbacks = [lambda currentPaper: results.extend(matching_process(k_value, dblp_mer_hash, top_mers_remove,
                                                                   levenshtein_candidates, paper_details,
-                                                                  hashmap_build_time, currentPaper.title))]
+                                                                  hashmap_build_time, currentPaper.title,
+                                                                  levenshteinThreshold, ratioThreshold))]
 
 
 if(chooseDBLPMag==0):
