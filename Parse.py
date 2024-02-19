@@ -2,6 +2,7 @@ import gzip
 import xml.etree.ElementTree as ET
 from Callback import Callback
 import sys
+import os
 
 class Paper:
     def __init__(self):
@@ -15,6 +16,7 @@ class Paper:
         self.published_through = None
         self.citation_count = None
         self.file_source = None
+        self.line_number = 0
 
 DBLP_line_count_freq=-1
 
@@ -119,6 +121,8 @@ used to parse through MAG
 '''
 
 def parse_MAG_file(callback,start_line, count_to):
+    cwd = os.getcwd()
+    print(cwd)
     file_path = 'Papers.txt.gz'
     line_counter = 0
 
@@ -141,6 +145,7 @@ def parse_MAG_file(callback,start_line, count_to):
                 current_paper.paper_id = paper_identification
                 current_paper.published_through = publisher
                 current_paper.year = year_published
+                current_paper.line_number = line_counter
 
 
                 if doi_num is not None:

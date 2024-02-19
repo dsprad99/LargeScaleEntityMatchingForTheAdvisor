@@ -1,3 +1,5 @@
+import re
+import sys
 
 class Callback:
     def masterCallback(paper, line):
@@ -8,9 +10,9 @@ class Callback:
 global print_counter
 print_counter = 0
 #allows program to print paper attributes from passing in a paper object
-def print_paper(paper):
+def print_paper(paper,count):
     global print_counter
-    if print_counter < 30:
+    if print_counter < count:
         if paper is not None:
             print("Author:", paper.author if paper.author else "None")
 
@@ -30,6 +32,7 @@ def print_paper(paper):
             print("Pages:", paper.pages if paper.pages else "None")
             print("URL:", paper.url if paper.url else "None")
             print("DOI:", paper.doi if paper.doi else "None")
+            print("Line Number:", paper.line_number if paper.line_number else "None")
             print("Published through:", paper.published_through if paper.published_through else "None")
             print("----------------------------")
         else:
@@ -62,6 +65,18 @@ def counter(paper):
             mag_title_counter += 1
             mag_title_char_counter += len(paper.title)        
 
+
+def seeker(paper, titleSeeking):
+    #allows to ignore periods
+    pattern_string = re.escape(titleSeeking).replace('\.', '\.?')
+    #match lower/uppercase words as long as theyr'e the same word
+    pattern = re.compile(pattern_string, re.IGNORECASE)  
+    matches = pattern.findall(paper.title)
+    if len(matches) > 0:
+        print(paper.title)
+        print(paper.line_number)
+        sys.stdout.flush()
+        sys.exit()
 
 
 

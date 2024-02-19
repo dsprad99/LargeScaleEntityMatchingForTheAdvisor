@@ -2,9 +2,9 @@
 #SBATCH --partition=Orion
 #SBATCH --job-name=theAdvisor
 #SBATCH --nodes=1
-#SBATCH --ntasks-per-node=15
-#SBATCH --mem-per-cpu=20GB
-#SBATCH --time=1:20:00
+#SBATCH --ntasks-per-node=1
+#SBATCH --mem-per-cpu=40GB
+#SBATCH --time=1:40:00
 
 
 echo "======================================================"
@@ -22,10 +22,10 @@ total_paper_querying=6649168
 
 #this is the paper that we will start querying our program 
 #if querying DBLP recommended that you start from 0 due to parsing in XML format
-start_paper=0
+start_paper=26985100
 
 #paper that we will end at
-end_paper=150000
+end_paper=26985200
 
 #note the number of tasks per node is set as the partitions we have
 partitions=$SLURM_CPUS_ON_NODE
@@ -40,7 +40,7 @@ repeating_kmer_remove=0
 top_kmer_remove=1000
 
 #pass in 0 to query DBLP and 1 for MAG
-dblp_mag_query=0
+dblp_mag_query=1
 
 #number of k-mers of top candidate divided by length of title to perform levenshtein
 #should be a float between 0 and 1
