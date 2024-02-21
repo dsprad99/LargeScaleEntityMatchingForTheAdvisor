@@ -117,6 +117,7 @@ def matching_process(k_value, dblp_mer_hash, num_removed_kmers, levenshtein_cand
 
     query_time_total = end_total_time_query - start_total_time_query
 
+    correctMatch = None
 
     #here we make sure that we have two candidates to compare and our best candidate has a levenshtein ration of at least .9
     #in the 2d array the indexes are as follows [id, frequency, levenshtein ratio, paper title]
@@ -126,6 +127,7 @@ def matching_process(k_value, dblp_mer_hash, num_removed_kmers, levenshtein_cand
         second_best_match_id = top_matches[1][0]
         best_match_title = top_matches[0][3]
         second_best_match_title = top_matches[1][3]
+        correctMatch = True
     else:
         ratio = 0
         best_match_title = "None"
@@ -133,7 +135,7 @@ def matching_process(k_value, dblp_mer_hash, num_removed_kmers, levenshtein_cand
 
 
    
-    if candidateTitle == best_match_title:
+    if correctMatch:
         trial_results.append((k_value, num_removed_kmers, candidateTitle, best_match_title, second_best_match_title, ratio, hashmap_build_time, 'Match',query_time_phase1,query_time_phase2,query_time_total,levenshteinThreshold,ratioThreshold,'citation'))
         successful_candidates +=1 
     else:
@@ -287,3 +289,7 @@ def average_histogram(fileName, average_accuracy_boolean, average_query_time_boo
             plt.tight_layout()
             plt.subplots_adjust(hspace=0.5) 
             plt.show()
+
+
+
+        
