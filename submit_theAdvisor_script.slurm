@@ -1,9 +1,9 @@
 #!/bin/bash
 #SBATCH --partition=Orion
 #SBATCH --job-name=theAdvisor
-#SBATCH --nodes=1
-#SBATCH --ntasks-per-node=1
-#SBATCH --mem-per-cpu=40GB
+#SBATCH --nodes=4
+#SBATCH --ntasks-per-node=2
+#SBATCH --mem-per-cpu=25GB
 #SBATCH --time=1:40:00
 
 
@@ -22,10 +22,10 @@ total_paper_querying=6649168
 
 #this is the paper that we will start querying our program 
 #if querying DBLP recommended that you start from 0 due to parsing in XML format
-start_paper=26985100
+start_paper=0
 
 #paper that we will end at
-end_paper=26985200
+end_paper=1000
 
 #note the number of tasks per node is set as the partitions we have
 partitions=$SLURM_CPUS_ON_NODE
@@ -69,7 +69,11 @@ done
 
 end_values[-1]=$end_paper
 
-parallel --link python matchingScript.py --paperLimit {1} --start {2} --end {3} --kmer {4} --repeatingMersRemove {5} --topMersRemove {6} --dblpMagQuery {7} --levenshteinThreshold {8} --ratioThreshold {9} --fileName testing_parallel_matching_script_DBLP_threshold_70 ::: "$total_paper_querying" ::: "${start_values[@]}" ::: "${end_values[@]}" ::: "$k_mer" ::: "$repeating_kmer_remove" ::: "$top_kmer_remove" ::: "$dblp_mag_query" ::: "$levenshteinThreshold" ::: "$ratioThreshold"
+
+
+scontrol show hostnames $SLURM_JOB_NODELIST > hostfile.$SLURM_JOBID
+
+parallel --wd $SLURM_SUBMIT_DIR --link --slf hostfile.$SLURM_JOBID -j $SLURM_CPUS_ON_NODE python matchingScript.py --paperLimit {1} --start {2} --end {3} --kmer {4} --repeatingMersRemove {5} --topMersRemove {6} --dblpMagQuery {7} --levenshteinThreshold {8} --ratioThreshold {9} --fileName testing_parallel_matching_script_DBLP_threshold_70 ::: "$total_paper_querying" ::: "${start_values[@]}" ::: "${end_values[@]}" ::: "$k_mer" ::: "$repeating_kmer_remove" ::: "$top_kmer_remove" ::: "$dblp_mag_query" ::: "$levenshteinThreshold" ::: "$ratioThreshold"
 
 echo ""
 echo "======================================================"
