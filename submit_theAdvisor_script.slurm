@@ -2,7 +2,7 @@
 #SBATCH --partition=Orion
 #SBATCH --job-name=theAdvisor
 #SBATCH --nodes=5
-#SBATCH --ntasks-per-node=10
+#SBATCH --ntasks-per-node=11
 #SBATCH --mem-per-cpu=25GB
 #SBATCH --time=1:40:00
 
@@ -37,7 +37,7 @@ k_mer=7
 repeating_kmer_remove=0
 
 #number of top k-mers want removed
-top_kmer_remove=1000
+top_kmer_remove=5000
 
 #pass in 0 to query DBLP and 1 for MAG
 dblp_mag_query=1
