@@ -1,8 +1,8 @@
 #!/bin/bash
 #SBATCH --partition=Orion
 #SBATCH --job-name=theAdvisor
-#SBATCH --nodes=4
-#SBATCH --ntasks-per-node=2
+#SBATCH --nodes=5
+#SBATCH --ntasks-per-node=10
 #SBATCH --mem-per-cpu=25GB
 #SBATCH --time=1:40:00
 
@@ -25,7 +25,7 @@ total_paper_querying=6649168
 start_paper=0
 
 #paper that we will end at
-end_paper=1000
+end_paper=600000
 
 #note the number of tasks per node is set as the partitions we have
 partitions=$SLURM_CPUS_ON_NODE
