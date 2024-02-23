@@ -31,10 +31,10 @@ end_paper=600000
 partitions=$SLURM_CPUS_ON_NODE
 
 #k-mer value were hashing
-k_mer=7
+k_mer=8
 
 #number of repeating mers want removed
-repeating_kmer_remove=0
+repeating_kmer_remove=25
 
 #number of top k-mers want removed
 top_kmer_remove=5000
