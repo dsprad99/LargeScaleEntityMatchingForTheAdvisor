@@ -82,6 +82,12 @@ def seeker(paper, titleSeeking):
 
 
 
+def magMatcher(MAG, lookUpID):
+    if(MAG.paper_id==lookUpID):
+        print(MAG.paper_id)
+        print(MAG.paper.title)
+        sys.stdout.flush()
+        sys.exit()
 
     
 
