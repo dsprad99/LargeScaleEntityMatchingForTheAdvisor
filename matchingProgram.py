@@ -82,7 +82,7 @@ the candidate matching process taking place
 '''
 successful_candidates= 0
 total_candidates = 0
-def matching_process(k_value, dblp_mer_hash, num_removed_kmers, levenshtein_candidates, paper_details,hashmap_build_time,candidateTitle, levenshteinThreshold, ratioThreshold):
+def matching_process(k_value, dblp_mer_hash, num_removed_kmers, levenshtein_candidates, paper_details,hashmap_build_time,candidate, levenshteinThreshold, ratioThreshold):
         
     global successful_candidates, total_candidates
     trial_results = []
@@ -91,7 +91,7 @@ def matching_process(k_value, dblp_mer_hash, num_removed_kmers, levenshtein_cand
     start_total_time_query = time.time()
 
     start_time_query_phase1 = time.time()
-    query_result = query_selector(dblp_mer_hash, mer_builder(candidateTitle, k_value, False, False))
+    query_result = query_selector(dblp_mer_hash, mer_builder(candidate.title, k_value, False, False))
     end_time_query_phase2 = time.time()
     query_time_phase1 = end_time_query_phase2 - start_time_query_phase1
 
@@ -104,8 +104,8 @@ def matching_process(k_value, dblp_mer_hash, num_removed_kmers, levenshtein_cand
     start_time_query_phase2 = time.time()
 
     #if highest frequency k-mer hashing candidate is 60% of the length of the candidate title we will go ahead with levenshtein
-    if((highest_frequency/len(candidateTitle))>levenshteinThreshold):
-        top_matches = top_candidates_levenshtein(query_result, levenshtein_candidates, candidateTitle, paper_details)
+    if((highest_frequency/len(candidate.title))>levenshteinThreshold):
+        top_matches = top_candidates_levenshtein(query_result, levenshtein_candidates, candidate.title, paper_details)
     else:
         #need to at least initialize the value so we don't throw an error below when checking the len of top_matches
         top_matches=[]
@@ -125,8 +125,8 @@ def matching_process(k_value, dblp_mer_hash, num_removed_kmers, levenshtein_cand
         ratio = top_matches[0][1], "-", top_matches[1][1]
         best_match_id = top_matches[0][0]
         second_best_match_id = top_matches[1][0]
-        best_match_title = top_matches[0][3]
-        second_best_match_title = top_matches[1][3]
+        #best_match_title = top_matches[0][3]
+        #second_best_match_title = top_matches[1][3]
         correctMatch = True
     else:
         ratio = 0
@@ -136,10 +136,10 @@ def matching_process(k_value, dblp_mer_hash, num_removed_kmers, levenshtein_cand
 
    
     if correctMatch:
-        trial_results.append((k_value, num_removed_kmers, candidateTitle, best_match_title, second_best_match_title, ratio, hashmap_build_time, 'Match',query_time_phase1,query_time_phase2,query_time_total,levenshteinThreshold,ratioThreshold,'citation'))
+        trial_results.append((k_value, num_removed_kmers, candidate.paper_id, best_match_id, second_best_match_id, ratio, hashmap_build_time, 'Match',query_time_phase1,query_time_phase2,query_time_total,levenshteinThreshold,ratioThreshold,'citation'))
         successful_candidates +=1 
-    else:
-        trial_results.append((k_value, num_removed_kmers, candidateTitle, best_match_title, second_best_match_title, ratio, hashmap_build_time, 'Not Match',query_time_phase1,query_time_phase2,query_time_total,levenshteinThreshold,ratioThreshold,'citation'))
+    #else:
+    #    trial_results.append((k_value, num_removed_kmers, candidateTitle, best_match_title, second_best_match_title, ratio, hashmap_build_time, 'Not Match',query_time_phase1,query_time_phase2,query_time_total,levenshteinThreshold,ratioThreshold,'citation'))
     
     total_candidates += 1
 
@@ -191,12 +191,12 @@ def csv_writer(results, file_name):
                 matching_candidates += 1
             total_candidates += 1
 
-        csvfile.write(f"\nMatching percentage: {matching_candidates/total_candidates:.2%}")
+        #csvfile.write(f"\nMatching percentage: {matching_candidates/total_candidates:.2%}")
         
-        print("Candidates with a match :",matching_candidates)
-        print("Total candidates :",total_candidates)
+        #print("Candidates with a match :",matching_candidates)
+        #print("Total candidates :",total_candidates)
 
-        print("Matching percentage: ",matching_candidates/total_candidates)
+        #print("Matching percentage: ",matching_candidates/total_candidates)
 
         
 '''

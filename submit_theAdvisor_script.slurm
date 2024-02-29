@@ -1,10 +1,10 @@
 #!/bin/bash
 #SBATCH --partition=Orion
 #SBATCH --job-name=theAdvisor
-#SBATCH --nodes=5
-#SBATCH --ntasks-per-node=11
+#SBATCH --nodes=10
+#SBATCH --ntasks-per-node=15
 #SBATCH --mem-per-cpu=25GB
-#SBATCH --time=1:40:00
+#SBATCH --time=504:00:00
 
 
 echo "======================================================"
@@ -25,7 +25,7 @@ total_paper_querying=6649168
 start_paper=0
 
 #paper that we will end at
-end_paper=600000
+end_paper=230000000
 
 #note the number of tasks per node is set as the partitions we have
 partitions=$SLURM_CPUS_ON_NODE
@@ -44,7 +44,7 @@ dblp_mag_query=1
 
 #number of k-mers of top candidate divided by length of title to perform levenshtein
 #should be a float between 0 and 1
-levenshteinThreshold=.3
+levenshteinThreshold=.4
 
 #ratio from levenshtein needed to be considered a match
 #should be a float between 0 and 1

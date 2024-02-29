@@ -47,7 +47,7 @@ print(args.start,args.end)
 
 callbacks = [lambda currentPaper: results.extend(matching_process(k_value, dblp_mer_hash, top_mers_remove,
                                                                   levenshtein_candidates, paper_details,
-                                                                  hashmap_build_time, currentPaper.title,
+                                                                  hashmap_build_time, currentPaper,
                                                                   levenshteinThreshold, ratioThreshold))]
 
 
