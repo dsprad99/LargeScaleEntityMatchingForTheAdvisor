@@ -23,6 +23,8 @@ parser.add_argument('--topMersRemove', type=int, help='Top (most frequent) mers 
 parser.add_argument('--dblpMagQuery', type=int, help='Choose to query DBLP or MAG')
 parser.add_argument('--levenshteinThreshold', type=float, help='Choose K-Mer Percentage threshold to perform Levenshtein')
 parser.add_argument('--ratioThreshold', type=float, help='Choose Levenshtein ratio threshold to be considered a match')
+parser.add_argument('--filter_out_matched',type=bool, help='Boolean value for whether or not to do filtering on already matched papers')
+parser.add_argument('--filter_out_file_path',type=str, help='File path for filtering')
 
 args = parser.parse_args()
 
@@ -40,8 +42,10 @@ end = args.end
 chooseDBLPMag = args.dblpMagQuery
 levenshteinThreshold = args.levenshteinThreshold
 ratioThreshold = args.ratioThreshold
+filter_out_matched = args.filter_out_matched
+filter_out_file_path = args.filter_out_file_path
 
-dblp_mer_hash, paper_details, hashmap_build_time = buildHashTable(k_value, paper_limit, repeating_mers_remove,top_mers_remove)
+dblp_mer_hash, paper_details, hashmap_build_time = build_dblp_hash_table(k_value, paper_limit, repeating_mers_remove,top_mers_remove)
 
 print(args.start,args.end)
 

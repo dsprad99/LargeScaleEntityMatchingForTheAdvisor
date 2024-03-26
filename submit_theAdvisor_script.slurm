@@ -50,6 +50,12 @@ levenshteinThreshold=.4
 #should be a float between 0 and 1
 ratioThreshold=.85
 
+#true/false value as to whether or not to do filtering based on papers that have already been matched
+filter_out_matched = True
+
+#file path for the file with matched papers
+filter_out_file_path = 'mag_to_dblp_query_total_trial1.csv'
+
 divided_work=$(((end_paper-start_paper) / partitions))
 
 echo "DBLP Hashtable Size: $total_paper_querying"
@@ -73,7 +79,7 @@ end_values[-1]=$end_paper
 
 scontrol show hostnames $SLURM_JOB_NODELIST > hostfile.$SLURM_JOBID
 
-parallel --wd $SLURM_SUBMIT_DIR --link --slf hostfile.$SLURM_JOBID -j $SLURM_CPUS_ON_NODE python matchingScript.py --paperLimit {1} --start {2} --end {3} --kmer {4} --repeatingMersRemove {5} --topMersRemove {6} --dblpMagQuery {7} --levenshteinThreshold {8} --ratioThreshold {9} --fileName testing_parallel_matching_script_DBLP_threshold_70 ::: "$total_paper_querying" ::: "${start_values[@]}" ::: "${end_values[@]}" ::: "$k_mer" ::: "$repeating_kmer_remove" ::: "$top_kmer_remove" ::: "$dblp_mag_query" ::: "$levenshteinThreshold" ::: "$ratioThreshold"
+parallel --wd $SLURM_SUBMIT_DIR --link --slf hostfile.$SLURM_JOBID -j $SLURM_CPUS_ON_NODE python matchingScript.py --paperLimit {1} --start {2} --end {3} --kmer {4} --repeatingMersRemove {5} --topMersRemove {6} --dblpMagQuery {7} --levenshteinThreshold {8} --ratioThreshold {9} --filter_out_matched {10} --filter_out_file_path {11} --fileNamey testing_parallel_matching_script_DBLP_threshold_70 ::: "$total_paper_querying" ::: "${start_values[@]}" ::: "${end_values[@]}" ::: "$k_mer" ::: "$repeating_kmer_remove" ::: "$top_kmer_remove" ::: "$dblp_mag_query" ::: "$levenshteinThreshold" ::: "$ratioThreshold" ::: "$filter_out_matched" ::: "$filter_out_file_path"
 
 echo ""
 echo "======================================================"
