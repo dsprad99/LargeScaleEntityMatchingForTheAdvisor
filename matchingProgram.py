@@ -1,6 +1,6 @@
 import random
 from Parse import parse_DBLP_file
-from Kmer import query_selector,mer_hashtable, remove_top_k_mers, mer_builder,top_candidates_levenshtein, paper_details_population,repeating_kmer_study,filter_and_remove_kmers
+from Kmer import query_selector,mer_hashtable, remove_top_k_mers, mer_builder,top_candidates_levenshtein, paper_details_population,repeating_kmer_study,matched_dblp_id_filter,filter_and_remove_kmers
 import os, psutil
 process = psutil.Process()
 import time
@@ -23,8 +23,13 @@ builds hashtable to hour dblp k-mer value and then ids with that k-mer
 @param: repeating_mers_remove - number of most frequently repeating k-mers we want removed
 
 @param: top_mers_remove - removes the most frequent k-mer values in hashmap
+
+@param: filter_out_matched - true/false as to whether the already matched papers should be filtered out 
+
+*note paramter is optional so that if the matched_file_path is not included the program will just skip over this
+@param: matched_file_path - file path for the already matched MAG-DBLP papers
 '''
-def build_dblp_hash_table(k, paper_limit, repeating_mers_remove, top_mers_remove):
+def build_dblp_hash_table(k, paper_limit, repeating_mers_remove, top_mers_remove, filter_out_matched, matched_file_path=None):
     # create DBLP hashmap
     dblp_mer_hash = {}
     global selected_dblp_papers
@@ -33,12 +38,16 @@ def build_dblp_hash_table(k, paper_limit, repeating_mers_remove, top_mers_remove
     paper_details = {}
     # used to create a hashmap of kmer repeating frequency
     repeat_kmer_hashmap = {}
+
+    #array that holds all of the DBLP ids of papers that have already been matched
+    matched_paper_dblp_id_array=[]
+    matched_paper_dblp_id_array= matched_dblp_id_filter(matched_file_path, matched_paper_dblp_id_array,filter_out_matched)
     
     arr_builder = lambda current_paper : mer_builder(current_paper.title, k, False, False)
 
     # build the mer_hash table for DBLP
     dblp_callbacks = [
-        lambda current_paper: mer_hashtable(current_paper, dblp_mer_hash, arr_builder),
+        lambda current_paper: mer_hashtable(current_paper, dblp_mer_hash, arr_builder,matched_paper_dblp_id_array),
         lambda current_paper: paper_details_population(current_paper.paper_id, current_paper.title, paper_details),
         lambda current_paper: repeating_kmer_study(current_paper, repeat_kmer_hashmap, arr_builder)
     ]
@@ -57,9 +66,9 @@ def build_dblp_hash_table(k, paper_limit, repeating_mers_remove, top_mers_remove
 
 
 '''
-the candidate matching process taking place 
+the candidate matching process taking place
 
-*note* many of these parameters are for field values for filling in the trial_results array 
+*note* many of these parameters are for field values for filling in the trial_results array
 
 @param: k_value - the k-value we use to query
 
@@ -68,7 +77,7 @@ the candidate matching process taking place
 @param: num_removed_kmers - value of k-mers removed
 
 @param: levenshtein_candidates - candidates used to move on to be evaluated in levenshtein process
- 
+
 @param: paper_details - details containing a papers ID - paper Title
 
 @param: hashmap_build_time - build time of how long it took to build DBLP hashmap
@@ -83,10 +92,10 @@ the candidate matching process taking place
 successful_candidates= 0
 total_candidates = 0
 def matching_process(k_value, dblp_mer_hash, num_removed_kmers, levenshtein_candidates, paper_details,hashmap_build_time,candidate, levenshteinThreshold, ratioThreshold):
-        
+
     global successful_candidates, total_candidates
     trial_results = []
-    
+
 
     start_total_time_query = time.time()
 
@@ -97,10 +106,10 @@ def matching_process(k_value, dblp_mer_hash, num_removed_kmers, levenshtein_cand
 
     #extract the highest int value from the values part of the dictionary to give us the highest frequency match
     if(query_result.values()):
-        highest_frequency = max(query_result.values())    
+        highest_frequency = max(query_result.values())
     else:
         highest_frequency = 0
-        
+
     start_time_query_phase2 = time.time()
 
     #if highest frequency k-mer hashing candidate is 60% of the length of the candidate title we will go ahead with levenshtein
@@ -112,7 +121,7 @@ def matching_process(k_value, dblp_mer_hash, num_removed_kmers, levenshtein_cand
 
     end_time_query_phase2 = time.time()
     query_time_phase2 =  end_time_query_phase2 - start_time_query_phase2
-    
+
     end_total_time_query = time.time()
 
     query_time_total = end_total_time_query - start_total_time_query
@@ -125,7 +134,7 @@ def matching_process(k_value, dblp_mer_hash, num_removed_kmers, levenshtein_cand
         ratio = top_matches[0][1], "-", top_matches[1][1]
         best_match_id = top_matches[0][0]
         second_best_match_id = top_matches[1][0]
-        #best_match_title = top_matches[0][3]
+        best_match_title = top_matches[0][3]
         #second_best_match_title = top_matches[1][3]
         correctMatch = True
     else:
@@ -134,13 +143,11 @@ def matching_process(k_value, dblp_mer_hash, num_removed_kmers, levenshtein_cand
         second_best_match_title = "None"
 
 
-   
+
     if correctMatch:
-        trial_results.append((k_value, num_removed_kmers, candidate.paper_id, best_match_id, second_best_match_id, ratio, hashmap_build_time, 'Match',query_time_phase1,query_time_phase2,query_time_total,levenshteinThreshold,ratioThreshold,'citation'))
-        successful_candidates +=1 
-    #else:
-    #    trial_results.append((k_value, num_removed_kmers, candidateTitle, best_match_title, second_best_match_title, ratio, hashmap_build_time, 'Not Match',query_time_phase1,query_time_phase2,query_time_total,levenshteinThreshold,ratioThreshold,'citation'))
-    
+        trial_results.append((k_value, num_removed_kmers,best_match_title,candidate.paper_id, best_match_id, ratio, hashmap_build_time, 'Match',query_time_phase1,query_time_phase2,query_time_total,levenshteinThreshold,ratioThreshold,'citation'))
+        successful_candidates +=1
+
     total_candidates += 1
 
 
@@ -161,7 +168,7 @@ writes to a csv file containing information about matching_process
 def csv_writer(results, file_name):
     # Write results to a CSV file
     with open(file_name, 'w', newline='', encoding='utf-8') as csvfile:
-        fieldnames = ['k', 'num_removed_kmers', 'candidate_paper_title', 'best_candidate_paper_title', '2nd_best_candidate_paper_title', 'ratio', 'hashmap_build_time','match','average_query_time_phase1','average_query_time_phase2','average_query_time_total','levenshteinThreshold','ratioThreshold','citation']
+        fieldnames = ['k', 'num_removed_kmers', 'candidate_paper_title', 'candidate_mag_id', 'candidate_dblp_id', 'ratio', 'hashmap_build_time','match','average_query_time_phase1','average_query_time_phase2','average_query_time_total','levenshteinThreshold','ratioThreshold']
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()
 
@@ -173,8 +180,8 @@ def csv_writer(results, file_name):
                 'k': result[0],
                 'num_removed_kmers': result[1],
                 'candidate_paper_title': result[2],
-                'best_candidate_paper_title': result[3],
-                '2nd_best_candidate_paper_title': result[4],
+                'candidate_mag_id': result[3],
+                'candidate_dblp_id': result[4],
                 'ratio': result[5],
                 'hashmap_build_time': result[6],
                 'match': result[7],
@@ -182,17 +189,16 @@ def csv_writer(results, file_name):
                 'average_query_time_phase2': result[9],
                 'average_query_time_total': result[10],
                 'levenshteinThreshold': result[11],
-                'ratioThreshold': result[12],
-                'citation': result[13]
-            })
-    
-        
+                'ratioThreshold': result[12]
+                })
+
+
             if(result[7]=="Match"):
                 matching_candidates += 1
             total_candidates += 1
 
         #csvfile.write(f"\nMatching percentage: {matching_candidates/total_candidates:.2%}")
-        
+
         #print("Candidates with a match :",matching_candidates)
         #print("Total candidates :",total_candidates)
 
@@ -292,4 +298,4 @@ def average_histogram(fileName, average_accuracy_boolean, average_query_time_boo
 
 
 
-        
+

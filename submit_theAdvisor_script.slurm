@@ -31,30 +31,30 @@ end_paper=230000000
 partitions=$SLURM_CPUS_ON_NODE
 
 #k-mer value were hashing
-k_mer=8
+k_mer=5
 
 #number of repeating mers want removed
 repeating_kmer_remove=25
 
 #number of top k-mers want removed
-top_kmer_remove=5000
+top_kmer_remove=3000
 
 #pass in 0 to query DBLP and 1 for MAG
 dblp_mag_query=1
 
 #number of k-mers of top candidate divided by length of title to perform levenshtein
 #should be a float between 0 and 1
-levenshteinThreshold=.4
+levenshteinThreshold=.3
 
 #ratio from levenshtein needed to be considered a match
 #should be a float between 0 and 1
 ratioThreshold=.85
 
 #true/false value as to whether or not to do filtering based on papers that have already been matched
-filter_out_matched = True
+filter_out_matched=True
 
 #file path for the file with matched papers
-filter_out_file_path = 'mag_to_dblp_query_total_trial1.csv'
+filter_out_file_path='mag_to_dblp_query_total_trial1.csv'
 
 divided_work=$(((end_paper-start_paper) / partitions))
 
@@ -79,8 +79,7 @@ end_values[-1]=$end_paper
 
 scontrol show hostnames $SLURM_JOB_NODELIST > hostfile.$SLURM_JOBID
 
-parallel --wd $SLURM_SUBMIT_DIR --link --slf hostfile.$SLURM_JOBID -j $SLURM_CPUS_ON_NODE python matchingScript.py --paperLimit {1} --start {2} --end {3} --kmer {4} --repeatingMersRemove {5} --topMersRemove {6} --dblpMagQuery {7} --levenshteinThreshold {8} --ratioThreshold {9} --filter_out_matched {10} --filter_out_file_path {11} --fileNamey testing_parallel_matching_script_DBLP_threshold_70 ::: "$total_paper_querying" ::: "${start_values[@]}" ::: "${end_values[@]}" ::: "$k_mer" ::: "$repeating_kmer_remove" ::: "$top_kmer_remove" ::: "$dblp_mag_query" ::: "$levenshteinThreshold" ::: "$ratioThreshold" ::: "$filter_out_matched" ::: "$filter_out_file_path"
-
+parallel --wd "$SLURM_SUBMIT_DIR" --link --slf "hostfile.$SLURM_JOBID" -j "$SLURM_CPUS_ON_NODE" python matchingScript.py --paperLimit {1} --start {2} --end {3} --kmer {4} --repeatingMersRemove {5} --topMersRemove {6} --dblpMagQuery {7} --levenshteinThreshold {8} --ratioThreshold {9} --filter_out_matched {10} --filter_out_file_path "$filter_out_file_path" --fileName testing_parallel_matching_script_DBLP_threshold_70 ::: "$total_paper_querying" ::: "${start_values[@]}" ::: "${end_values[@]}" ::: "$k_mer" ::: "$repeating_kmer_remove" ::: "$top_kmer_remove" ::: "$dblp_mag_query" ::: "$levenshteinThreshold" ::: "$ratioThreshold" ::: "$filter_out_matched"
 echo ""
 echo "======================================================"
 echo "End Time : $(date)"

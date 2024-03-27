@@ -45,7 +45,7 @@ ratioThreshold = args.ratioThreshold
 filter_out_matched = args.filter_out_matched
 filter_out_file_path = args.filter_out_file_path
 
-dblp_mer_hash, paper_details, hashmap_build_time = build_dblp_hash_table(k_value, paper_limit, repeating_mers_remove,top_mers_remove)
+dblp_mer_hash, paper_details, hashmap_build_time = build_dblp_hash_table(k_value, paper_limit, repeating_mers_remove,top_mers_remove, filter_out_matched, filter_out_file_path)
 
 print(args.start,args.end)
 

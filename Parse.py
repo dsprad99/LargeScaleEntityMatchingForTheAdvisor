@@ -159,3 +159,27 @@ def parse_MAG_file(callback,start_line, count_to):
                 for fnction in callback:
                         fnction(current_paper)
     return line_counter
+
+
+'''
+Used to parse through files that have already been matched between MAG and DBLP
+
+@param: file_path - file path to where the matched file is
+
+@param: callback - callbacks that you want to be applied when defintion is called
+'''
+
+def parse_matching_file(file_path,callback):
+    with open(file_path, 'rt', encoding='utf-8') as file:
+        for line in file:
+
+            line = line.encode('utf-8', errors='replace').decode('utf-8')
+
+            fields = line.strip().split(',')
+            current_paper = Paper()
+            dblp_paper_id = fields[4]
+            current_paper.paper_id = dblp_paper_id
+
+            current_paper.file_source = "MAG"
+            for fnction in callback:
+                    fnction(current_paper)

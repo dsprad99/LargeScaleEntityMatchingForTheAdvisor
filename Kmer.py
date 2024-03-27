@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import sys
 from Levenshtein import distance,ratio
+from Parse import parse_matching_file
 
 '''
 @brief: this class is meant to serve where k-mer calculations will take place
@@ -131,15 +132,20 @@ ie. "help" = 786545
 @param: mer_hash - k-mer hash table being built
 
 @param: mer_builder_call - callback that will split our title into mers
+
+@param: filter_arr - Is an array that holds DBLP paper_ids. If you want to filer out the papers that have already been matched 
+then the matched_dblp_id_arr definition needs to be run. Else pass in an empty array.
 '''
-def mer_hashtable(paper, mer_hash, mer_builder_callback):
-    mer_array = mer_builder_callback(paper)
+def mer_hashtable(paper, mer_hash, mer_builder_callback, filter_arr):
     
-    for arr in mer_array:
-        if arr not in mer_hash:
-            mer_hash[arr] = [paper.paper_id]
-        else:
-            mer_hash[arr].append(paper.paper_id)
+    if(paper.paper_id not in filter_arr):
+        mer_array = mer_builder_callback(paper)
+        
+        for arr in mer_array:
+            if arr not in mer_hash:
+                mer_hash[arr] = [paper.paper_id]
+            else:
+                mer_hash[arr].append(paper.paper_id)
     
     
 '''
@@ -359,6 +365,35 @@ def repeating_kmer_study(paper,repeat_kmer_hashmap, mer_builder_callback):
 
 
 '''
+function to find the difference of papers that have already matched and have no matched, this creating a smaller 
+hashmap to query from and hopefully make the program faster and more accurate
+
+@param: matched_dblp_file - file path for the matched papers
+
+@param: matched_paper_dblp_id_array - array used to hold values of matched DBLP paper IDs
+
+@param: filter_out_matched - will run the program if set true and not if set to false
+'''
+def matched_dblp_id_filter(matched_dblp_file,matched_paper_dblp_id_array, filter_out_matched):
+
+    if(filter_out_matched):
+        matched_callbacks = [
+            lambda current_paper: paper_title_paper_id_matching(current_paper, matched_paper_dblp_id_array)
+        ]
+
+        #make parse_matching_file to make it so that it can match the MAG-DBLP matching file
+        parse_matching_file(matched_dblp_file,matched_callbacks)
+
+    return matched_paper_dblp_id_array
+
+
+
+def paper_title_paper_id_matching(current_paper, paper_title_id_array):
+    paper_title_id_array.append(current_paper.paper_id)
+
+
+
+'''
 function to remove most frequent repeating k-mers using repeating_kmer_study returned hashmap
 
 @param: repeat_kmer_hashmap - hashmap returned from repeating_kmer_study containing most frequent repeated k-mers
@@ -380,3 +415,4 @@ def filter_and_remove_kmers(repeat_kmer_hashmap,dblp_hash_map, k):
             del dblp_hash_map[k_mer]
 
     return dblp_hash_map
+
