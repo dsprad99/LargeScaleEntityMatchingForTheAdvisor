@@ -183,3 +183,42 @@ def parse_matching_file(file_path,callback):
             current_paper.file_source = "MAG"
             for fnction in callback:
                     fnction(current_paper)
+
+
+
+'''
+Used to parse through citeseer file
+
+@param: file_path - file path where citeseer is located
+
+@param: callback - callback to be applied when definition is called
+'''
+
+def parse_citeseer(file_path,callback, paper_limit):
+    current_paper = None
+    i = 0
+    with gzip.open(file_path, 'rt', encoding='utf-8') as gz_file:
+        for line in gz_file:
+            if(i>paper_limit):
+                return
+
+            line = line.encode('utf-8', errors='replace').decode('utf-8')
+            fields = line.strip().split(',')
+
+            if(len(fields)==3):
+                current_paper = Paper()
+                citeseer_id = fields[0]
+                citeseer_cluster = fields[1]
+                citeseer_title = fields[2]
+                current_paper.paper_id = (citeseer_id,citeseer_cluster)
+                current_paper.title = citeseer_title    
+
+                current_paper.file_source = "Citeseer"
+                for fnction in callback:
+                        fnction(current_paper)
+                i+=1
+
+
+
+
+

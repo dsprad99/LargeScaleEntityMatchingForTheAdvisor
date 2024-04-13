@@ -1,5 +1,5 @@
 import random
-from Parse import parse_DBLP_file
+from Parse import parse_DBLP_file,parse_citeseer
 from Kmer import query_selector,mer_hashtable, remove_top_k_mers, mer_builder,top_candidates_levenshtein, paper_details_population,repeating_kmer_study,matched_dblp_id_filter,filter_and_remove_kmers
 import os, psutil
 process = psutil.Process()
@@ -29,7 +29,7 @@ builds hashtable to hour dblp k-mer value and then ids with that k-mer
 *note paramter is optional so that if the matched_file_path is not included the program will just skip over this
 @param: matched_file_path - file path for the already matched MAG-DBLP papers
 '''
-def build_dblp_hash_table(k, paper_limit, repeating_mers_remove, top_mers_remove, filter_out_matched, matched_file_path=None):
+def build_dblp_hash_table(hashMap_build_dataset,k, paper_limit, repeating_mers_remove, top_mers_remove, filter_out_matched, matched_file_path=None):
     # create DBLP hashmap
     dblp_mer_hash = {}
     global selected_dblp_papers
@@ -42,7 +42,6 @@ def build_dblp_hash_table(k, paper_limit, repeating_mers_remove, top_mers_remove
     #array that holds all of the DBLP ids of papers that have already been matched
     matched_paper_dblp_id_array=[]
     matched_paper_dblp_id_array= matched_dblp_id_filter(matched_file_path, matched_paper_dblp_id_array,filter_out_matched)
-    
     arr_builder = lambda current_paper : mer_builder(current_paper.title, k, False, False)
 
     # build the mer_hash table for DBLP
@@ -52,8 +51,17 @@ def build_dblp_hash_table(k, paper_limit, repeating_mers_remove, top_mers_remove
         lambda current_paper: repeating_kmer_study(current_paper, repeat_kmer_hashmap, arr_builder)
     ]
 
+    citeseer_callbacks = [
+        lambda current_paper: mer_hashtable(current_paper, dblp_mer_hash, arr_builder,matched_paper_dblp_id_array),
+        lambda current_paper: paper_details_population(current_paper.paper_id, current_paper.title, paper_details),
+        lambda current_paper: repeating_kmer_study(current_paper, repeat_kmer_hashmap, arr_builder)
+    ]
+
     start_time_build_hashmap = time.time()
-    parse_DBLP_file( dblp_callbacks,0,paper_limit)
+    if(hashMap_build_dataset == 1):
+        parse_DBLP_file( dblp_callbacks,0,paper_limit)
+    elif(hashMap_build_dataset==3):
+        parse_citeseer('citeseer_id_cluster_title.csv.gz',citeseer_callbacks,paper_limit)
     print(f"DBLP hash table built for k={k}")
     end_time_build_hashmap = time.time()
     hashmap_build_time = end_time_build_hashmap - start_time_build_hashmap
@@ -91,7 +99,7 @@ the candidate matching process taking place
 '''
 successful_candidates= 0
 total_candidates = 0
-def matching_process(k_value, dblp_mer_hash, num_removed_kmers, levenshtein_candidates, paper_details,hashmap_build_time,candidate, levenshteinThreshold, ratioThreshold):
+def matching_process(k_value, dblp_mer_hash, num_removed_kmers, levenshtein_candidates, paper_details,hashmap_build_time,candidate, levenshteinThreshold, ratioThreshold,hashMap_build_data):
 
     global successful_candidates, total_candidates
     trial_results = []
@@ -128,7 +136,7 @@ def matching_process(k_value, dblp_mer_hash, num_removed_kmers, levenshtein_cand
 
     correctMatch = None
 
-    #here we make sure that we have two candidates to compare and our best candidate has a levenshtein ration of at least .9
+    #here we make sure that we have two candidates to compare and our best candidate has a levenshtein ratio
     #in the 2d array the indexes are as follows [id, frequency, levenshtein ratio, paper title]
     if len(top_matches) >= 2 and top_matches[0][2]>ratioThreshold:
         ratio = top_matches[0][1], "-", top_matches[1][1]
@@ -142,15 +150,18 @@ def matching_process(k_value, dblp_mer_hash, num_removed_kmers, levenshtein_cand
         best_match_title = "None"
         second_best_match_title = "None"
 
+    print("Inside")
 
-
-    if correctMatch:
+    if (correctMatch and (hashMap_build_data==1 or hashMap_build_data==2)):
         trial_results.append((k_value, num_removed_kmers,best_match_title,candidate.paper_id, best_match_id, ratio, hashmap_build_time, 'Match',query_time_phase1,query_time_phase2,query_time_total,levenshteinThreshold,ratioThreshold,'citation'))
         successful_candidates +=1
 
+    elif(correctMatch and hashMap_build_data==3):
+        #columns: k, num_removed_kmers, candidate_paper_title, candidate_dblp_id, citeseer_id, cluster_id, ratio,hashmap_build_time,match,average_query_time_phase1,average_query_time_phase2,average_query_time_total,levenshteinThreshold,ratioThreshold
+        trial_results.append((k_value, num_removed_kmers,best_match_title,candidate.paper_id, best_match_id[0],best_match_id[1], ratio, hashmap_build_time, 'Match',query_time_phase1,query_time_phase2,query_time_total,levenshteinThreshold,ratioThreshold,'citation'))
+        successful_candidates +=1
+        print("Match")
     total_candidates += 1
-
-
 
     return trial_results
 
@@ -164,45 +175,112 @@ writes to a csv file containing information about matching_process
 @param: results - results from our matching_process in an array
 
 @param: file_name - file name that results will write to
+
+@param: querying_dataset - the dataset that is being parsed through to query the dataset broken into a hashmap
 '''
-def csv_writer(results, file_name):
-    # Write results to a CSV file
-    with open(file_name, 'w', newline='', encoding='utf-8') as csvfile:
-        fieldnames = ['k', 'num_removed_kmers', 'candidate_paper_title', 'candidate_mag_id', 'candidate_dblp_id', 'ratio', 'hashmap_build_time','match','average_query_time_phase1','average_query_time_phase2','average_query_time_total','levenshteinThreshold','ratioThreshold']
-        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-        writer.writeheader()
+def csv_writer(results, file_name,hashMap_dataset ,querying_dataset):
 
-        total_candidates = 0
-        matching_candidates = 0
+    #DBLP as hashmap and MAG is what is queried 
+    if(hashMap_dataset == 1 and querying_dataset==2):
+        with open(file_name, 'w', newline='', encoding='utf-8') as csvfile:
+            fieldnames = ['k', 'num_removed_kmers', 'candidate_paper_title', 'candidate_mag_id', 'candidate_dblp_id', 'ratio', 'hashmap_build_time','match','average_query_time_phase1','average_query_time_phase2','average_query_time_total','levenshteinThreshold','ratioThreshold']
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            writer.writeheader()
 
-        for result in results:
-            writer.writerow({
-                'k': result[0],
-                'num_removed_kmers': result[1],
-                'candidate_paper_title': result[2],
-                'candidate_mag_id': result[3],
-                'candidate_dblp_id': result[4],
-                'ratio': result[5],
-                'hashmap_build_time': result[6],
-                'match': result[7],
-                'average_query_time_phase1': result[8],
-                'average_query_time_phase2': result[9],
-                'average_query_time_total': result[10],
-                'levenshteinThreshold': result[11],
-                'ratioThreshold': result[12]
+            total_candidates = 0
+            matching_candidates = 0
+
+            for result in results:
+                writer.writerow({
+                    'k': result[0],
+                    'num_removed_kmers': result[1],
+                    'candidate_paper_title': result[2],
+                    'candidate_mag_id': result[3],
+                    'candidate_dblp_id': result[4],
+                    'ratio': result[5],
+                    'hashmap_build_time': result[6],
+                    'match': result[7],
+                    'average_query_time_phase1': result[8],
+                    'average_query_time_phase2': result[9],
+                    'average_query_time_total': result[10],
+                    'levenshteinThreshold': result[11],
+                    'ratioThreshold': result[12]
+                    })
+
+
+                if(result[7]=="Match"):
+                    matching_candidates += 1
+                total_candidates += 1
+
+    #Citeseer as hashmap and DBLP is what is queried 
+    elif (hashMap_dataset == 3 and querying_dataset == 1):
+        with open(file_name, 'w', newline='', encoding='utf-8') as csvfile:
+            fieldnames = ['k', 'num_removed_kmers', 'candidate_paper_title', 'candidate_dblp_id', 'citeseer_id', 'cluster_id', 'ratio', 'hashmap_build_time', 'match', 'average_query_time_phase1', 'average_query_time_phase2', 'average_query_time_total', 'levenshteinThreshold', 'ratioThreshold']
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            writer.writeheader()
+
+            total_candidates = 0
+            matching_candidates = 0
+
+            for result in results:
+                writer.writerow({
+                    'k': result[0],
+                    'num_removed_kmers': result[1],
+                    'candidate_paper_title': result[2],
+                    'candidate_dblp_id': result[3],
+                    'citeseer_id': result[4],  
+                    'cluster_id': result[5], 
+                    'ratio': result[6],         
+                    'hashmap_build_time': result[7],  
+                    'match': result[8],        
+                    'average_query_time_phase1': result[9], 
+                    'average_query_time_phase2': result[10],  
+                    'average_query_time_total': result[11], 
+                    'levenshteinThreshold': result[12],  
+                    'ratioThreshold': result[13]  
                 })
 
+                if result[8] == "Match":
+                    matching_candidates += 1
+                total_candidates += 1
 
-            if(result[7]=="Match"):
-                matching_candidates += 1
-            total_candidates += 1
 
-        #csvfile.write(f"\nMatching percentage: {matching_candidates/total_candidates:.2%}")
+    #Citeseer as hashmap and MAG is what is queried 
+    elif(hashMap_dataset == 3 and querying_dataset==2):
+        with open(file_name, 'w', newline='', encoding='utf-8') as csvfile:
+            fieldnames = ['k', 'num_removed_kmers', 'candidate_paper_title', 'candidate_mag_id', 'citeseer_id', 'cluster_id', 'ratio', 'hashmap_build_time', 'match', 'average_query_time_phase1', 'average_query_time_phase2', 'average_query_time_total', 'levenshteinThreshold', 'ratioThreshold']
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            writer.writeheader()
 
-        #print("Candidates with a match :",matching_candidates)
-        #print("Total candidates :",total_candidates)
+            total_candidates = 0
+            matching_candidates = 0
 
-        #print("Matching percentage: ",matching_candidates/total_candidates)
+            for result in results:
+                writer.writerow({
+                    'k': result[0],
+                    'num_removed_kmers': result[1],
+                    'candidate_paper_title': result[2],
+                    'candidate_mag_id': result[3],
+                    'citeseer_id': result[4],  
+                    'cluster_id': result[5], 
+                    'ratio': result[6],         
+                    'hashmap_build_time': result[7],  
+                    'match': result[8],        
+                    'average_query_time_phase1': result[9], 
+                    'average_query_time_phase2': result[10],  
+                    'average_query_time_total': result[11], 
+                    'levenshteinThreshold': result[12],  
+                    'ratioThreshold': result[13]  
+                })
+
+                if result[8] == "Match":
+                    matching_candidates += 1
+                total_candidates += 1
+
+
+    
+
+       
 
         
 '''
@@ -299,3 +377,8 @@ def average_histogram(fileName, average_accuracy_boolean, average_query_time_boo
 
 
 
+
+
+
+
+        
