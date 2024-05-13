@@ -24,7 +24,7 @@ builds hashtable to hour dblp k-mer value and then ids with that k-mer
 
 @param: top_mers_remove - removes the most frequent k-mer values in hashmap
 
-@param: filter_out_matched - true/false as to whether the already matched papers should be filtered out 
+@param: filter_out_matched - true/false as to whether the already matched papers should be filtered out
 
 *note paramter is optional so that if the matched_file_path is not included the program will just skip over this
 @param: matched_file_path - file path for the already matched MAG-DBLP papers
@@ -57,17 +57,17 @@ def build_dblp_hash_table(hashMap_build_dataset,k, paper_limit, repeating_mers_r
         lambda current_paper: repeating_kmer_study(current_paper, repeat_kmer_hashmap, arr_builder)
     ]
 
-    start_time_build_hashmap = time.time()
+    start_time_build_hashmap = time.perf_counter()
     if(hashMap_build_dataset == 1):
         parse_DBLP_file( dblp_callbacks,0,paper_limit)
     elif(hashMap_build_dataset==3):
         parse_citeseer('citeseer_id_cluster_title.csv.gz',citeseer_callbacks,paper_limit)
     print(f"DBLP hash table built for k={k}")
-    end_time_build_hashmap = time.time()
+    end_time_build_hashmap = time.perf_counter()
     hashmap_build_time = end_time_build_hashmap - start_time_build_hashmap
     dblp_mer_hash = filter_and_remove_kmers(repeat_kmer_hashmap, dblp_mer_hash, repeating_mers_remove)
     dblp_mer_hash = remove_top_k_mers(dblp_mer_hash, top_mers_remove)
-        
+
     return dblp_mer_hash, paper_details, hashmap_build_time
 
 
@@ -105,12 +105,12 @@ def matching_process(k_value, dblp_mer_hash, num_removed_kmers, levenshtein_cand
     trial_results = []
 
 
-    start_total_time_query = time.time()
+    start_total_time_query = time.perf_counter()
 
-    start_time_query_phase1 = time.time()
+    start_time_query_phase1 = time.perf_counter()
     query_result = query_selector(dblp_mer_hash, mer_builder(candidate.title, k_value, False, False))
-    end_time_query_phase2 = time.time()
-    query_time_phase1 = end_time_query_phase2 - start_time_query_phase1
+    end_time_query_phase1 = time.perf_counter()
+    query_time_phase1 = end_time_query_phase1 - start_time_query_phase1
 
     #extract the highest int value from the values part of the dictionary to give us the highest frequency match
     if(query_result.values()):
@@ -118,7 +118,7 @@ def matching_process(k_value, dblp_mer_hash, num_removed_kmers, levenshtein_cand
     else:
         highest_frequency = 0
 
-    start_time_query_phase2 = time.time()
+    start_time_query_phase2 = time.perf_counter()
 
     #if highest frequency k-mer hashing candidate is 60% of the length of the candidate title we will go ahead with levenshtein
     if((highest_frequency/len(candidate.title))>levenshteinThreshold):
@@ -127,14 +127,15 @@ def matching_process(k_value, dblp_mer_hash, num_removed_kmers, levenshtein_cand
         #need to at least initialize the value so we don't throw an error below when checking the len of top_matches
         top_matches=[]
 
-    end_time_query_phase2 = time.time()
+    end_time_query_phase2 = time.perf_counter()
     query_time_phase2 =  end_time_query_phase2 - start_time_query_phase2
 
-    end_total_time_query = time.time()
+    end_total_time_query = time.perf_counter()
 
     query_time_total = end_total_time_query - start_total_time_query
 
     correctMatch = None
+
 
     #here we make sure that we have two candidates to compare and our best candidate has a levenshtein ratio
     #in the 2d array the indexes are as follows [id, frequency, levenshtein ratio, paper title]
@@ -153,6 +154,7 @@ def matching_process(k_value, dblp_mer_hash, num_removed_kmers, levenshtein_cand
     if (correctMatch and (hashMap_build_data==1 or hashMap_build_data==2)):
         trial_results.append((k_value, num_removed_kmers,best_match_title,candidate.paper_id, best_match_id, ratio, hashmap_build_time, 'Match',query_time_phase1,query_time_phase2,query_time_total,levenshteinThreshold,ratioThreshold,'citation'))
         successful_candidates +=1
+        print("Match")
 
     elif(correctMatch and hashMap_build_data==3):
         #columns: k, num_removed_kmers, candidate_paper_title, candidate_dblp_id, citeseer_id, cluster_id, ratio,hashmap_build_time,match,average_query_time_phase1,average_query_time_phase2,average_query_time_total,levenshteinThreshold,ratioThreshold
@@ -178,7 +180,7 @@ writes to a csv file containing information about matching_process
 '''
 def csv_writer(results, file_name,hashMap_dataset ,querying_dataset):
 
-    #DBLP as hashmap and MAG is what is queried 
+    #DBLP as hashmap and MAG is what is queried
     if(hashMap_dataset == 1 and querying_dataset==2):
         with open(file_name, 'w', newline='', encoding='utf-8') as csvfile:
             fieldnames = ['k', 'num_removed_kmers', 'candidate_paper_title', 'candidate_mag_id', 'candidate_dblp_id', 'ratio', 'hashmap_build_time','match','average_query_time_phase1','average_query_time_phase2','average_query_time_total','levenshteinThreshold','ratioThreshold']
@@ -210,7 +212,7 @@ def csv_writer(results, file_name,hashMap_dataset ,querying_dataset):
                     matching_candidates += 1
                 total_candidates += 1
 
-    #Citeseer as hashmap and DBLP is what is queried 
+    #Citeseer as hashmap and DBLP is what is queried
     elif (hashMap_dataset == 3 and querying_dataset == 1):
         with open(file_name, 'w', newline='', encoding='utf-8') as csvfile:
             fieldnames = ['k', 'num_removed_kmers', 'candidate_paper_title', 'candidate_dblp_id', 'citeseer_id', 'cluster_id', 'ratio', 'hashmap_build_time', 'match', 'average_query_time_phase1', 'average_query_time_phase2', 'average_query_time_total', 'levenshteinThreshold', 'ratioThreshold']
@@ -226,16 +228,16 @@ def csv_writer(results, file_name,hashMap_dataset ,querying_dataset):
                     'num_removed_kmers': result[1],
                     'candidate_paper_title': result[2],
                     'candidate_dblp_id': result[3],
-                    'citeseer_id': result[4],  
-                    'cluster_id': result[5], 
-                    'ratio': result[6],         
-                    'hashmap_build_time': result[7],  
-                    'match': result[8],        
-                    'average_query_time_phase1': result[9], 
-                    'average_query_time_phase2': result[10],  
-                    'average_query_time_total': result[11], 
-                    'levenshteinThreshold': result[12],  
-                    'ratioThreshold': result[13]  
+                    'citeseer_id': result[4],
+                    'cluster_id': result[5],
+                    'ratio': result[6],
+                    'hashmap_build_time': result[7],
+                    'match': result[8],
+                    'average_query_time_phase1': result[9],
+                    'average_query_time_phase2': result[10],
+                    'average_query_time_total': result[11],
+                    'levenshteinThreshold': result[12],
+                    'ratioThreshold': result[13]
                 })
 
                 if result[8] == "Match":
@@ -243,7 +245,7 @@ def csv_writer(results, file_name,hashMap_dataset ,querying_dataset):
                 total_candidates += 1
 
 
-    #Citeseer as hashmap and MAG is what is queried 
+    #Citeseer as hashmap and MAG is what is queried
     elif(hashMap_dataset == 3 and querying_dataset==2):
         with open(file_name, 'w', newline='', encoding='utf-8') as csvfile:
             fieldnames = ['k', 'num_removed_kmers', 'candidate_paper_title', 'candidate_mag_id', 'citeseer_id', 'cluster_id', 'ratio', 'hashmap_build_time', 'match', 'average_query_time_phase1', 'average_query_time_phase2', 'average_query_time_total', 'levenshteinThreshold', 'ratioThreshold']
@@ -259,16 +261,16 @@ def csv_writer(results, file_name,hashMap_dataset ,querying_dataset):
                     'num_removed_kmers': result[1],
                     'candidate_paper_title': result[2],
                     'candidate_mag_id': result[3],
-                    'citeseer_id': result[4],  
-                    'cluster_id': result[5], 
-                    'ratio': result[6],         
-                    'hashmap_build_time': result[7],  
-                    'match': result[8],        
-                    'average_query_time_phase1': result[9], 
-                    'average_query_time_phase2': result[10],  
-                    'average_query_time_total': result[11], 
-                    'levenshteinThreshold': result[12],  
-                    'ratioThreshold': result[13]  
+                    'citeseer_id': result[4],
+                    'cluster_id': result[5],
+                    'ratio': result[6],
+                    'hashmap_build_time': result[7],
+                    'match': result[8],
+                    'average_query_time_phase1': result[9],
+                    'average_query_time_phase2': result[10],
+                    'average_query_time_total': result[11],
+                    'levenshteinThreshold': result[12],
+                    'ratioThreshold': result[13]
                 })
 
                 if result[8] == "Match":
@@ -276,11 +278,11 @@ def csv_writer(results, file_name,hashMap_dataset ,querying_dataset):
                 total_candidates += 1
 
 
-    
 
-       
 
-        
+
+
+
 '''
 prints histogram of the average accuracy and query time of results from the matching process
 
@@ -313,7 +315,7 @@ def average_histogram(fileName, average_accuracy_boolean, average_query_time_boo
         elif(average_query_time_boolean):
             fig, (ax2) = plt.subplots(1, 1, figsize=(18, 18))
 
-        
+
 
         # Setting the positions for the bars
         ind = np.arange(len(df['k_num_combination'].unique()))
@@ -362,21 +364,12 @@ def average_histogram(fileName, average_accuracy_boolean, average_query_time_boo
             elif(average_accuracy_boolean==False):
                 plt.show()
 
-        
+
         if(print_file_name and average_query_time_boolean and average_accuracy_boolean):
             plt.tight_layout()
-            plt.subplots_adjust(hspace=0.5) 
+            plt.subplots_adjust(hspace=0.5)
             plt.savefig(print_file_name)
         elif(average_query_time_boolean and average_accuracy_boolean):
             plt.tight_layout()
-            plt.subplots_adjust(hspace=0.5) 
+            plt.subplots_adjust(hspace=0.5)
             plt.show()
-
-
-
-
-
-
-
-
-        
