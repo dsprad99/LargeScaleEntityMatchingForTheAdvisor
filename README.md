@@ -1,7 +1,7 @@
 # Large Scale Entity for theAdvisor 📘
 
 ## About ℹ️
-#### theAdvisor is a project started back in 2013 to help users build a strong bibliography by extending the document set obtained after a first-level search. While there exist ways of looking up papers bibliographies, many of them are inaccurate due to how data is gathered using methods such as computer vision. 
+#### theAdvisor is a project started back in 2013 to help users build a strong bibliography by extending the document set obtained after a first-level search. While there exist ways of looking up papers bibliographies, many of them are inaccurate due to how data is gathered using methods such as computer vision, which has flaws with different formatted papers. 
 
 #### Therefore, we have sourced our data from MAG, DBLP, and Citeseer in a diverse set of file formats such as XML, CSV, and SQL. These datasets cross-reference each other to help us gain strong metadata. However, these datasets cannot be matched directly due to there being slight differences in paper titles such as weird spacing, misspellings, capitalization issues, etc. Which is why the two-phase method we used was implemented. 📚🔍
 
