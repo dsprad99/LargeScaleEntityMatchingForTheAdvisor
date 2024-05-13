@@ -6,13 +6,16 @@
 #### Therefore, we have sourced our data from MAG, DBLP, and Citeseer in a diverse set of file formats such as XML, CSV, and SQL. These datasets cross-reference each other to help us gain strong metadata. However, these datasets cannot be matched directly due to there being slight differences in paper titles such as weird spacing, misspellings, capitalization issues, etc. Which is why the two-phase method we used was implemented. 📚🔍
 
 ## Data 🔤
-### MAG (Microsoft Academic Graph)
+### MAG (Microsoft Academic Graph) 
+#### https://www.microsoft.com/en-us/research/project/microsoft-academic-graph/
 #### MAG is a comprehensive database of academic literature, spanning disciplines from science to humanities. It contains metadata and citation information for over 200,000,000 scholarly papers, allowing researchers to explore connections between publications, authors, and institutions. With its vast coverage and machine-readable data, it serves as a valuable resource for academic research. 
 
 ### DBLP (Digital Biblography & Library Project)
+#### https://dblp.org/
 #### DBLP is a computer science bibliography website/dataset that provides free access to scholarly articles, conference papers, and journals in the field of computer science. It is a comprehensive resource for researchers, academics, and students seeking information on various topics within computer science and related disciplines. This giving us the metadata needed for this project.
 
 ### Citeseer
+#### https://citeseerx.ist.psu.edu/
 #### CiteSeer is a scientific literature digital library and search engine which automatically crawls and indexes scientific documents in the fields of computer and information science. Thus containing citation information that would assist in rebuilding theAdvisor.
 
 ## Phase 1 🔄
