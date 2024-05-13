@@ -28,6 +28,9 @@
 
 ![alt text](https://github.com/dsprad99/LargeScaleEntityMatchingForTheAdvisor/blob/main/img/levenshtein_image.jpeg)
 
+## Parallel Computing 💻
+#### In order to help speed up the process of the program the University of North Carolina at Charlotte High Performance Computing Systems Lab was used. Utlizing the high perormance computers and breaking them up into parallel processes allowed us to complete the program 15x faster then the original runtime.
+
 ## Method 🧠
 #### Considering in this specific project we only care about computer science papers it makes most sense to use DBLP as the basis for matching. Meaning that we really only want to match DBLP -> MAG and DBLP -> Citeseer. This will keep the metadata that we want from DBLP while gaining the citation information that it lacks from both MAG and Citeseer. Along with that it also makese sense to rerun this program removing the already matched entities. This will allow us to rerun the program, reducing the size of the hashmap, and run more expensive thresholds that should be more accurate but take less time then originally. 
 
