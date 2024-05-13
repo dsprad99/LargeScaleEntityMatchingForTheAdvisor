@@ -3,6 +3,7 @@ import xml.etree.ElementTree as ET
 from Callback import Callback
 import sys
 import os
+import json
 
 class Paper:
     def __init__(self):
@@ -42,7 +43,7 @@ since values are being parsed using xml it is suggested to make sure that you pa
         
 def parse_DBLP_file(callback,start_paper,count_to):
     current_paper = None
-
+    paper_title_arr = []
     if(start_paper>=count_to):
         print("Error: Start paper is greater then or equal to end paper. Adjust so that start paper is less then the end paper.")
         sys.stdout.flush()
@@ -56,7 +57,7 @@ def parse_DBLP_file(callback,start_paper,count_to):
         inside_paper = False
         for current_line in gz_file:
             if i > count_to:
-                return
+                return paper_title_arr
             
             #check for closing tag first for cases such as
             #</incollection><incollection mdate="2017-07-12" key="reference/cn/Prinz14" publtype="encyclopedia">
@@ -69,6 +70,7 @@ def parse_DBLP_file(callback,start_paper,count_to):
                     if(start_paper<=i):
                         for fnction in callback:
                             fnction(current_paper)
+                        paper_title_arr.append(current_paper.title)
 
                     current_paper = None
 
@@ -107,7 +109,7 @@ def parse_DBLP_file(callback,start_paper,count_to):
                 pap.append(current_line)
                 count_line += 1
 
-    return i
+    return paper_title_arr
 
 
 '''
@@ -195,7 +197,7 @@ Used to parse through citeseer file
 '''
 
 def parse_citeseer(file_path,callback, paper_limit):
-    current_paper = None
+    current_paper = Paper()
     i = 0
     with gzip.open(file_path, 'rt', encoding='utf-8') as gz_file:
         for line in gz_file:
