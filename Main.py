@@ -1,59 +1,56 @@
-from Callback import print_paper
-from Parse import Paper, parse_DBLP_file, parse_MAG_file
-from Kmer import query_selector,mer_hashtable, histogramQuery,histogramMers,query_selector_MAG_test, remove_top_k_mers, mer_builder
-import os, psutil
-process = psutil.Process()
+import argparse
+from Parse import parse_MAG_file, parse_DBLP_file,Paper
+from matchingProgram import matching_process, build_dblp_hash_table
+from thefuzz import process
 import time
+'''
+script to execute matchingProgram used to paper querying
+'''
+
+#arguements taken in from slurm script 
+
+k_value = 8
+
+pap = Paper
+pap.title = "Mini Delay Spreead TEQ Design in Muulticarrier Ssystem"
+pap.paper_id = 000
+
+#Note that DBLP has 6649168 papers set this as the max paper_limit
+paper_limit = 200000
+repeating_mers_remove = 30
+num_removed_kmers = 8000
+levenshtein_candidates = 3
+results = []
+start = 0
+end = 0
+fileName = "testing123"
+top_mers_remove = 0
+levenshteinThreshold = .4
+ratioThreshold = .85
+filter_out_matched = False
+matched_file_path = 'mag_to_dblp_query_total_trial1.csv'
+
+#Options
+#DBLP - 1
+#MAG - 2
+#Citeseer - 3
+#to decide which set of data the hashmap is to be built on
+hashMap_build_dataset = 3
+#used to describe which dataset is being used to query the hashmap
+query_dataset = 3
 
 
-def main():
-    #memoryatstart = process.memory_info().rss 
-    #print(memoryatstart/1024/1024)
-
-    file_path_dblp = 'dblp.xml.gz'
-    file_path_MAG = 'Papers.txt.gz'
-
-    dblp_mer_hash = {}  
-    mag_mer_hash = {}
-
-    arr_builder = lambda current_paper : mer_builder(current_paper.title, 3, False, False)
-    
-
-    dblp_callbacks = [
-        #lambda current_paper: print_paper(current_paper),
-        lambda current_paper: mer_hashtable(current_paper, dblp_mer_hash,arr_builder)
-    ]
-    num_papers = parse_DBLP_file(file_path_dblp, dblp_callbacks,1000000)
-    #print(len(dblp_mer_hash.keys()))
-    #print("Number of papers in DBLP",num_papers)
+dblp_mer_hash, paper_details, hashmap_build_time = build_dblp_hash_table(hashMap_build_dataset,k_value, paper_limit, repeating_mers_remove,top_mers_remove,filter_out_matched,matched_file_path)
 
 
-    #dblp_mer_hash = remove_top_k_mers(dblp_mer_hash , 1000)
-    #start = time.time()
-    #parse_MAG_file(file_path_MAG, mag_callbacks,10)
-    #end = time.time()
-    #print(end - start)
+print(matching_process(k_value, dblp_mer_hash, num_removed_kmers, levenshtein_candidates, paper_details,hashmap_build_time,pap, levenshteinThreshold, ratioThreshold,hashMap_build_dataset))
 
-    #memoryatend = process.memory_info().rss 
-    #print(memoryatend/1024/1024)
-    #print((memoryatend-memoryatstart)/1024/1024)
+#get array of choices to query from
+choices = parse_DBLP_file([], 0, paper_limit)
+start_time = time.perf_counter()
+#start process of querying, pap.title is what we are looking for
+process.extractOne(pap.title, choices)
+end_time = time.perf_counter()
+execution_time = end_time - start_time
 
-    query_count1 = query_selector("Modeling Structured Open Worlds in a Database System: The FLL-Approach.", dblp_mer_hash,mer_builder("Modeling Structured Open Worlds in a Database System: The FLL-Approach.", 3, False, False))
-    print (query_count1)
-
-    #end = time.time()
-    #print(end - start)
-
-
-    #histogramQuery(query_count1, filename="query_histogram_DBLP_1.svg")
-    #histogramQuery(query_count1)
-    #histogramQuery(query_count2, filename="query_histogram_DBLP_2.png")
-    #histogramQuery(query_count2)
-    #histogramQuery(query_count3, filename="query_histogram_DBLP_3.png")
-
-    histogramMers(dblp_mer_hash,0,200, filename="most_frequent_million_mers.svg")
-    #histogramMers(mag_mer_hash,1,20, filename="most_frequent_mer_MAG_histogram.png")
-
-
-if __name__ == "__main__":
-    main()
+print(execution_time)
