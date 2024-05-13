@@ -61,7 +61,7 @@ if(chooseDBLPMag==1):
 	parse_DBLP_file(callbacks,start,end)
 	newFileName = f"{args.fileName}_dblp_{args.start}_{args.end}_{args.kmer}_{args.topMersRemove}.csv"
 
-elif(chooseDBLPMag==2): 
+elif(chooseDBLPMag==2):
 	parse_MAG_file(callbacks, start, end)
 	newFileName = f"{args.fileName}_mag_{args.start}_{args.end}_{args.kmer}_{args.topMersRemove}.csv"
 

@@ -150,8 +150,6 @@ def matching_process(k_value, dblp_mer_hash, num_removed_kmers, levenshtein_cand
         best_match_title = "None"
         second_best_match_title = "None"
 
-    print("Inside")
-
     if (correctMatch and (hashMap_build_data==1 or hashMap_build_data==2)):
         trial_results.append((k_value, num_removed_kmers,best_match_title,candidate.paper_id, best_match_id, ratio, hashmap_build_time, 'Match',query_time_phase1,query_time_phase2,query_time_total,levenshteinThreshold,ratioThreshold,'citation'))
         successful_candidates +=1
