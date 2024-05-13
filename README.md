@@ -13,3 +13,6 @@
 
 ## Future Work 🔜
 #### With the overall goal of this project being to revivie theAdvisor, a lot of the data sourcing has been completed. However, there are still some web development tasks that need to be completed in order for this project to be launched.
+
+## Contact ✉️
+#### For any questions or inquiry about this project please reach out to dspradl1@uncc.edu!
