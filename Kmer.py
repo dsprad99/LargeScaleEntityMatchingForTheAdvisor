@@ -13,7 +13,7 @@ from Parse import parse_matching_file
 '''
 allows us to query a title from our mer_hash that contains
 an ID for every mer that exists
-therefore using the mer_hash it is able to identify the frequency of 
+therefore using the mer_hash it is able to identify the frequency of
 mers associated with an ID number to find the best candidate
 
 high frequency = good candidate
@@ -60,7 +60,7 @@ def paper_details_population(id, title, paper_dictionary):
 
 
 
-    
+
 '''
 mer_builder helps us actually build an array containing k-mer values
 ie. title: hello   array: mer_array = [hel, elo, llo]
@@ -76,8 +76,8 @@ ie. title: hello   array: mer_array = [hel, elo, llo]
 @return: mer_array - returns array of broken up k-mer values from title passed in
 '''
 
-def mer_builder(paper_title,k, lower_case = False, remove_spaces = False):  
-    
+def mer_builder(paper_title,k, lower_case = False, remove_spaces = False):
+
     if paper_title is None:
         return []
 
@@ -117,7 +117,7 @@ def mer_builder(paper_title,k, lower_case = False, remove_spaces = False):
 
 
 '''
-allows us to take in a paper object and build our mer hashtable by adding 
+allows us to take in a paper object and build our mer hashtable by adding
 those papers k-mer values with there paper ID to the hashmap
 
 ie. "hello" = 786544
@@ -133,21 +133,21 @@ ie. "help" = 786545
 
 @param: mer_builder_call - callback that will split our title into mers
 
-@param: filter_arr - Is an array that holds DBLP paper_ids. If you want to filer out the papers that have already been matched 
+@param: filter_arr - Is an array that holds DBLP paper_ids. If you want to filer out the papers that have already been matched
 then the matched_dblp_id_arr definition needs to be run. Else pass in an empty array.
 '''
 def mer_hashtable(paper, mer_hash, mer_builder_callback, filter_arr):
-    
+
     if(paper.paper_id not in filter_arr):
         mer_array = mer_builder_callback(paper)
-        
+
         for arr in mer_array:
             if arr not in mer_hash:
                 mer_hash[arr] = [paper.paper_id]
             else:
                 mer_hash[arr].append(paper.paper_id)
-    
-    
+
+
 '''
 removes the top numbers of k-mers in the hashmap
 main use case it to reduce frequent k-mer querying
@@ -194,14 +194,14 @@ def top_candidates(query_dataset,number_of_candidates):
         #should add the paper_id and frequency of the candidate with the most matches at index 0 all the way to the least
         individual_candidate = [paper_id, frequency]
         candidates.append(individual_candidate)
-        
-    return candidates  
+
+    return candidates
 
 
 
 
 '''
-returns our top candidates from a hashmap of IDs and then goes through a levenshtein algorithm 
+returns our top candidates from a hashmap of IDs and then goes through a levenshtein algorithm
 to find the true best cadidate
 
 @param: query_dataset - hashmap that we will be querying from
@@ -243,9 +243,9 @@ allows us to build a histogram of the highest frequency k-mer
 def histogramMers(mer_hash,start_num,end_num, filename=None):
     #sort k-mers by frequency in descending order
     sorted_k_mers = sorted(mer_hash.items(), key=lambda x: len(x[1]), reverse=True)
-    
+
     #include the top start_num to end_num K-mers
-    top_k_mers = sorted_k_mers[start_num:end_num]  
+    top_k_mers = sorted_k_mers[start_num:end_num]
 
     if not top_k_mers:
         print("No k-mers found in the hash.")
@@ -323,7 +323,7 @@ def histogramQuery(count_dict, filename= None):
 
     bar_width = 0.5
     plt.bar(range(len(k_mer_labels)), k_mer_counts, width=bar_width, color='blue')
-    plt.xticks(range(len(k_mer_labels)), k_mer_labels, rotation=90, fontsize=8)  
+    plt.xticks(range(len(k_mer_labels)), k_mer_labels, rotation=90, fontsize=8)
     plt.xlabel("DBLP IDs")
     plt.ylabel("Frequency with hashmap")
     plt.title("Top 10 DBLP ID's Histogram")
@@ -358,14 +358,14 @@ def repeating_kmer_study(paper,repeat_kmer_hashmap, mer_builder_callback):
     for mer in title_repeated_count:
         if title_repeated_count[mer] >= 2:
             #if the mer is not in the hashmap there will also be no value in the hashamp
-            #therefore we will make a default value 0 
+            #therefore we will make a default value 0
             repeat_count = repeat_kmer_hashmap.get(mer, 0)
             repeat_kmer_hashmap[mer] = repeat_count + (title_repeated_count[mer] - 1)
 
 
 
 '''
-function to find the difference of papers that have already matched and have no matched, this creating a smaller 
+function to find the difference of papers that have already matched and have no matched, this creating a smaller
 hashmap to query from and hopefully make the program faster and more accurate
 
 @param: matched_dblp_file - file path for the matched papers
@@ -415,4 +415,3 @@ def filter_and_remove_kmers(repeat_kmer_hashmap,dblp_hash_map, k):
             del dblp_hash_map[k_mer]
 
     return dblp_hash_map
-
