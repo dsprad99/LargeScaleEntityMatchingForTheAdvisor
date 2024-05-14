@@ -20,7 +20,7 @@ cd $SLURM_SUBMIT_DIR
 #total amount of papers that our hashmap will build to Note DBLP: 6649168
 total_paper_querying=6649168
 
-#this is the paper that we will start querying our program 
+#this is the paper that we will start querying our program
 #if querying DBLP recommended that you start from 0 due to parsing in XML format
 start_paper=0
 
