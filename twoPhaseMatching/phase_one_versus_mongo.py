@@ -12,6 +12,10 @@ import numpy as np
 import sys
 import matplotlib.pyplot as plt
 
+'''
+@breif: Script is meant to directly compare phase 1 of the two phase process to MongoDBs textScore method.
+'''
+
 class Sentence:
     def __init__(self):
         self.incorrect = None
